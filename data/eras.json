@@ -1,0 +1,7 @@
+{
+  "_schema": {
+    "note": "Optional: name the league's eras for the history page timeline.",
+    "example": { "name": "The Founding Years", "startSeason": 2023, "endSeason": 2024, "description": "" }
+  },
+  "eras": []
+}

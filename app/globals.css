@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --color-base: #0d0d0f;
+  --color-surface: #16161a;
+  --color-surface-raised: #1c1c21;
+  --color-border: #2a2a30;
+  --color-text: #f4f4f2;
+  --color-text-muted: #9a9aa4;
+  --color-text-dim: #6b6b74;
+  --color-accent: #ff5a2e;
+  --color-accent-dim: #7a3018;
+  --color-gold: #c9a24b;
+  --color-gold-dim: #4d3f21;
+  --color-win: #3fb27f;
+  --color-loss: #e0525f;
+}
+
+@theme inline {
+  --color-base: var(--color-base);
+  --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-dim: var(--color-text-dim);
+  --color-accent: var(--color-accent);
+  --color-accent-dim: var(--color-accent-dim);
+  --color-gold: var(--color-gold);
+  --color-gold-dim: var(--color-gold-dim);
+  --color-win: var(--color-win);
+  --color-loss: var(--color-loss);
+  --font-condensed: var(--font-condensed);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-base);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.font-condensed {
+  font-family: var(--font-condensed);
+}
+
+.stat-num {
+  font-family: var(--font-condensed);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.table-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #0d0d0f;
+}

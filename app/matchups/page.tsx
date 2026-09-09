@@ -1,0 +1,47 @@
+import { getCurrentLeague, getCurrentWeek, getLeagueForSeason, getSeasons } from "@/lib/league";
+import { getWeekMatchups } from "@/lib/matchups";
+import { WeekSelector } from "@/components/WeekSelector";
+import { MatchupCard } from "@/components/MatchupCard";
+
+export const dynamic = "force-dynamic";
+
+export default async function MatchupsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ season?: string; week?: string }>;
+}) {
+  const params = await searchParams;
+  const currentLeague = getCurrentLeague();
+  const seasons = getSeasons();
+
+  const season = params.season ?? currentLeague?.season ?? seasons[0];
+  const week = params.week ? Number(params.week) : getCurrentWeek();
+
+  const league = season === currentLeague?.season ? currentLeague : getLeagueForSeason(season);
+
+  if (!league) {
+    return <div className="py-10 text-text-muted">No league data ingested yet — run the ingest script.</div>;
+  }
+
+  const matchups = getWeekMatchups(league.league_id, week);
+
+  return (
+    <div className="py-10">
+      <p className="font-condensed text-sm font-semibold uppercase tracking-widest text-accent">{season} Season</p>
+      <h1 className="font-condensed mt-2 text-4xl font-bold uppercase tracking-wide">Matchups</h1>
+
+      <div className="mt-6">
+        <WeekSelector seasons={seasons} season={season} week={week} />
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        {matchups.length === 0 && (
+          <p className="text-text-muted">No matchups recorded for this week yet.</p>
+        )}
+        {matchups.map((m) => (
+          <MatchupCard key={m.matchupId} teams={m.teams} />
+        ))}
+      </div>
+    </div>
+  );
+}

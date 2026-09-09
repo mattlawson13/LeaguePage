@@ -1,0 +1,10 @@
+{
+  "_schema": {
+    "note": "Key is a stable slug. userIds reference lib/stats.ts managers (Sleeper user_id). Everything not named here is auto-detected by the rivalry-score algorithm in Phase 3 — this file only needs the marquee ones worth hand-written context.",
+    "example": {
+      "userIds": ["user_id_a", "user_id_b"],
+      "name": "The name fans use for this rivalry",
+      "originStory": "Hand-written context: how it started, why it matters."
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "_schema": {
+    "note": "Trophy definitions for the Trophy Room. `auto` awards are computed by lib/stats.ts each season; `manual` awards are commish-voted and set here by season.",
+    "definitions": [
+      { "id": "champion", "name": "League Champion", "type": "auto", "description": "Winner of the winners bracket final." },
+      { "id": "toilet_bowl", "name": "Toilet Bowl", "type": "auto", "description": "Loser of the losers bracket final — last place." },
+      { "id": "most_pf_no_title", "name": "Best Team That Didn't Win It", "type": "auto", "description": "Highest points-for in a season without winning the title." },
+      { "id": "bench_regret", "name": "Most Points Left on Bench", "type": "auto", "description": "Largest single-season gap between optimal and actual starting lineup points." },
+      { "id": "worst_trade", "name": "Worst Trade of the Year", "type": "manual", "description": "Commish-voted; set per season below." }
+    ]
+  },
+  "manualAwards": {}
+}
