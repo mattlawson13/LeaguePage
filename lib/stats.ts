@@ -176,11 +176,12 @@ export function getManagerCareerStats(db: Database = getDb()): ManagerCareerStat
     const seededRosterIds = new Set<number>();
     if (winners) {
       const matches = JSON.parse(winners.data_json) as BracketMatch[];
+      // Top seeds get a first-round bye, so they only appear as t1/t2
+      // starting in round 2 — a completed season has every slot resolved,
+      // so collecting across every round (not just r===1) catches them.
       for (const match of matches) {
-        if (match.r === 1) {
-          if (match.t1) seededRosterIds.add(match.t1);
-          if (match.t2) seededRosterIds.add(match.t2);
-        }
+        if (match.t1) seededRosterIds.add(match.t1);
+        if (match.t2) seededRosterIds.add(match.t2);
       }
       const finalMatch = matches.find((mt) => mt.p === 1);
       if (finalMatch?.w) {
@@ -251,6 +252,7 @@ export function getHeadToHeadMatrix(db: Database = getDb()): HeadToHeadRecord[] 
     const owner1 = ownerByLeagueRoster.get(`${m1.league_id}:${m1.roster_id}`);
     const owner2 = ownerByLeagueRoster.get(`${m2.league_id}:${m2.roster_id}`);
     if (!owner1 || !owner2 || owner1 === owner2) continue;
+    if (pointsOf(m1) === 0 && pointsOf(m2) === 0) continue; // week not played yet
 
     const key = pairKey(owner1, owner2);
     if (!results.has(key)) {
@@ -272,6 +274,40 @@ export function getHeadToHeadMatrix(db: Database = getDb()): HeadToHeadRecord[] 
   }
 
   return Array.from(results.values());
+}
+
+export interface HeadToHeadForUser {
+  wins: number;
+  losses: number;
+  ties: number;
+  pointsFor: number;
+  pointsAgainst: number;
+  games: number;
+  avgMargin: number;
+}
+
+/** Same matrix, oriented from one user's perspective — for a rivalry card, not a full grid. */
+export function getHeadToHeadForPair(userId: string, opponentId: string, db: Database = getDb()): HeadToHeadForUser | null {
+  const rec = getHeadToHeadMatrix(db).find(
+    (r) => (r.userA === userId && r.userB === opponentId) || (r.userA === opponentId && r.userB === userId),
+  );
+  if (!rec || rec.games === 0) return null;
+
+  const isA = rec.userA === userId;
+  const wins = isA ? rec.aWins : rec.bWins;
+  const losses = isA ? rec.bWins : rec.aWins;
+  const pointsFor = isA ? rec.aPoints : rec.bPoints;
+  const pointsAgainst = isA ? rec.bPoints : rec.aPoints;
+
+  return {
+    wins,
+    losses,
+    ties: rec.ties,
+    pointsFor,
+    pointsAgainst,
+    games: rec.games,
+    avgMargin: (pointsFor - pointsAgainst) / rec.games,
+  };
 }
 
 // --- All-play / luck -------------------------------------------------

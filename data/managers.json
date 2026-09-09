@@ -1,128 +1,129 @@
 {
-  "988183451339677696": {
-    "displayName": "CallMeAndy",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "736772908076183552": {
-    "displayName": "Chrisstine",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "555493825238970368": {
-    "displayName": "Kevisballs420",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2024,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "441997831335571456": {
-    "displayName": "Schmittbone",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "739251210330230784": {
-    "displayName": "SuperDad7",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "738128469245968384": {
-    "displayName": "WinstonsWinningTeam",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "1392630989905231872": {
-    "displayName": "brookek1248",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2026,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "442124724219146240": {
-    "displayName": "dillony12",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "611402366717321216": {
-    "displayName": "dith",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "738126753045815296": {
-    "displayName": "frankie2chins",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "872692356380577792": {
-    "displayName": "jswiontak",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "444940031451197440": {
-    "displayName": "laheyrandy",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "870450099619278848": {
-    "displayName": "lotsofcox",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  },
-  "738149263577636864": {
-    "displayName": "tylerlawson",
-    "nickname": "",
-    "photo": "",
-    "joinedYear": 2023,
-    "bio": "",
-    "catchphrase": "",
-    "knownFor": []
-  }
+  "_comment": "sleeper_username is the join key. The ingest step resolves it to user_id via /league/{id}/users and writes user_id back. favorite_player is resolved against the Sleeper player map by search_full_name; favorite_team is an NFL abbreviation. Either may be null. relationship is hand-written (not inferred) and drives the 'house divided' tag on rivalry cards.",
+  "managers": [
+    {
+      "sleeper_username": "Lahey Randy",
+      "display_name": "Lahey Randy",
+      "real_name": "Matt Lawson",
+      "role": "commissioner",
+      "bio": "The commissioner. Runs the league, sets the rules, and answers for all of it.",
+      "favorite_player": "Trevor Lawrence",
+      "favorite_team": "JAX",
+      "rivals": ["Schmittbone"]
+    },
+    {
+      "sleeper_username": "Schmittbone",
+      "display_name": "Schmittbone",
+      "real_name": "Sam Schmitt",
+      "role": "manager",
+      "bio": "A fantasy football connoisseur. Spends day and night reviewing tape on rookies.",
+      "favorite_player": null,
+      "favorite_team": "PHI",
+      "rivals": ["Lahey Randy"]
+    },
+    {
+      "sleeper_username": "tylurlawson",
+      "display_name": "tylurlawson",
+      "real_name": "Tyler Lawson",
+      "role": "manager",
+      "bio": "Wife of Andy. Here for the vibes.",
+      "favorite_player": null,
+      "favorite_team": null,
+      "relationship": { "type": "spouse", "with": "punt on 3rd down" },
+      "rivals": ["punt on 3rd down"]
+    },
+    {
+      "sleeper_username": "punt on 3rd down",
+      "display_name": "punt on 3rd down",
+      "real_name": "Andy Wilpiselski",
+      "role": "manager",
+      "bio": "Husband of Tyler. Shithouse lord. A genuinely strong player.",
+      "favorite_player": null,
+      "favorite_team": null,
+      "relationship": { "type": "spouse", "with": "tylurlawson" },
+      "rivals": ["tylurlawson"]
+    },
+    {
+      "sleeper_username": "andres the giants",
+      "display_name": "andres the giants",
+      "real_name": "Frank Desiderio",
+      "role": "manager",
+      "bio": "Husband of Melissa Lawson. His own worst enemy.",
+      "favorite_player": null,
+      "favorite_team": null,
+      "relationship": { "type": "spouse", "with": "back dak azz up" },
+      "rivals": ["andres the giants"]
+    },
+    {
+      "sleeper_username": "back dak azz up",
+      "display_name": "back dak azz up",
+      "real_name": "Melissa Lawson",
+      "role": "manager",
+      "bio": "Wife of Frank. A great fantasy player — the Rain Man of fantasy football.",
+      "favorite_player": null,
+      "favorite_team": "PHI",
+      "relationship": { "type": "spouse", "with": "andres the giants" },
+      "rivals": ["lotsofcox"]
+    },
+    {
+      "sleeper_username": "lotsofcox",
+      "display_name": "lotsofcox",
+      "real_name": "Julia Wilcox",
+      "role": "manager",
+      "bio": "Nurse extraordinaire out of Philly.",
+      "favorite_player": null,
+      "favorite_team": "PHI",
+      "rivals": ["back dak azz up"]
+    },
+    {
+      "sleeper_username": "tush push and pray",
+      "display_name": "tush push and pray",
+      "real_name": "Brooke Kratzer",
+      "role": "manager",
+      "bio": "A rookie to the league. Another nurse extraordinaire.",
+      "favorite_player": "Jalen Hurts",
+      "favorite_team": "PHI",
+      "rivals": ["dith"]
+    },
+    {
+      "sleeper_username": "dith",
+      "display_name": "dith",
+      "real_name": "Meredith Hartman",
+      "role": "manager",
+      "bio": "Rams fan through and through. Has never won it all, but this may be her year.",
+      "favorite_player": "Aaron Donald",
+      "favorite_team": "LAR",
+      "rivals": ["tush push and pray"]
+    },
+    {
+      "sleeper_username": "superdad7",
+      "display_name": "superdad7",
+      "real_name": "Mel Lawson",
+      "role": "manager",
+      "bio": "Grandfather of the year.",
+      "favorite_player": "T.J. Watt",
+      "favorite_team": "PIT",
+      "rivals": ["chrisstine"]
+    },
+    {
+      "sleeper_username": "chrisstine",
+      "display_name": "chrisstine",
+      "real_name": "Christine",
+      "role": "manager",
+      "bio": "Grandmother of the year.",
+      "favorite_player": "Saquon Barkley",
+      "favorite_team": "PHI",
+      "rivals": ["superdad7"]
+    },
+    {
+      "sleeper_username": "jswiontak",
+      "display_name": "jswiontak",
+      "real_name": "John Swiontak",
+      "role": "manager",
+      "bio": "Brooklyn native. Jets fan.",
+      "favorite_player": "Josh Allen",
+      "favorite_team": "NYJ",
+      "rivals": []
+    }
+  ]
 }
