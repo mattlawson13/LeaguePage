@@ -490,7 +490,13 @@ async function main() {
 
 main()
   .then(() => {
-    console.log("ingest: done");
+    // Leave a single clean file behind, not a .db + .db-wal/.db-shm trio —
+    // this snapshot gets committed and deployed as-is (see lib/db/client.ts).
+    const db = getDb();
+    db.pragma("wal_checkpoint(TRUNCATE)");
+    db.pragma("journal_mode = DELETE");
+    db.close();
+    console.log("ingest: done — .data/league.db is ready to commit");
     process.exit(0);
   })
   .catch((err) => {
