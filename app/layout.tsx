@@ -22,7 +22,7 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Lawson Fantasy Football Gang",
-  description: "League hub for Lawson Fantasy Football Gang — matchups, standings, history, and more.",
+  description: "League hub for Lawson Fantasy Football Gang: matchups, standings, history, and more.",
 };
 
 // Applies a saved theme choice before first paint so there's no flash of the

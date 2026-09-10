@@ -1,5 +1,6 @@
 import { getCurrentLeague, getCurrentWeek, getLeagueForSeason, getSeasons } from "@/lib/league";
 import { getWeekMatchups } from "@/lib/matchups";
+import { getMatchupArticle } from "@/lib/beatWriter";
 import { WeekSelector } from "@/components/WeekSelector";
 import { MatchupCard } from "@/components/MatchupCard";
 
@@ -20,7 +21,7 @@ export default async function MatchupsPage({
   const league = season === currentLeague?.season ? currentLeague : getLeagueForSeason(season);
 
   if (!league) {
-    return <div className="py-10 text-text-muted">No league data ingested yet — run the ingest script.</div>;
+    return <div className="py-10 text-text-muted">No league data ingested yet. Run the ingest script.</div>;
   }
 
   const matchups = getWeekMatchups(league.league_id, week);
@@ -36,9 +37,11 @@ export default async function MatchupsPage({
 
       <div className="mt-8 divide-y divide-border border-t border-border">
         {matchups.length === 0 && <p className="py-6 text-text-muted">No matchups recorded for this week yet.</p>}
-        {matchups.map((m) => (
-          <MatchupCard key={m.matchupId} teams={m.teams} />
-        ))}
+        {matchups.map((m) => {
+          const played = m.teams.every((t) => t.points > 0);
+          const article = played ? getMatchupArticle(m, league.league_id, season, week) : null;
+          return <MatchupCard key={m.matchupId} teams={m.teams} article={article} />;
+        })}
       </div>
     </div>
   );

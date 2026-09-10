@@ -87,7 +87,7 @@ export function getWeekMatchups(leagueId: string, week: number, db: Database = g
         return {
           playerId,
           name: p?.full_name ?? (playerId === "0" ? "Empty" : playerId),
-          position: p?.position ?? "—",
+          position: p?.position ?? "-",
           team: p?.team ?? null,
           points: playersPoints[playerId] ?? 0,
         };

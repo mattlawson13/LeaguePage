@@ -12,7 +12,7 @@ export default function PlayoffOddsPage() {
   const managers = resolveManagers();
 
   if (!run) {
-    return <div className="py-14 text-text-muted">No league data ingested yet — run the ingest script.</div>;
+    return <div className="py-14 text-text-muted">No league data ingested yet. Run the ingest script.</div>;
   }
 
   const weeksOfData = new Set(history.map((h) => h.week)).size;
@@ -31,7 +31,7 @@ export default function PlayoffOddsPage() {
         <h2 className="font-condensed text-xl font-bold tracking-tight text-text">Make-playoffs % over time</h2>
         {weeksOfData <= 1 ? (
           <p className="mt-1 text-sm text-text-dim">
-            Only one week of snapshots so far — this fills in as the ingest script runs across the season.
+            Only one week of snapshots so far. This fills in as the ingest script runs across the season.
           </p>
         ) : null}
         <div className="mt-4">
@@ -77,7 +77,7 @@ export default function PlayoffOddsPage() {
                   <td className="table-mono py-2.5 pr-2 text-right font-semibold text-text">{r.makePlayoffsPct.toFixed(1)}%</td>
                   {r.seedPct.map((pct, si) => (
                     <td key={si} className="table-mono py-2.5 pr-2 text-right text-text-muted">
-                      {pct >= 0.1 ? `${pct.toFixed(1)}%` : "—"}
+                      {pct >= 0.1 ? `${pct.toFixed(1)}%` : "-"}
                     </td>
                   ))}
                   <td className="table-mono py-2.5 pr-2 text-right text-gold">{r.titlePct.toFixed(1)}%</td>

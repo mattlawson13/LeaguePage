@@ -12,7 +12,7 @@ export default function PlayersPage() {
       <p className="text-sm text-text-muted">The league</p>
       <h1 className="font-condensed mt-1 text-3xl font-bold tracking-tight text-text">Player history</h1>
       <p className="mt-3 max-w-xl text-text-muted">
-        Every player who&apos;s ever been drafted, added, or traded in this league — {players.length} of them.
+        Every player who&apos;s ever been drafted, added, or traded in this league: {players.length} of them.
       </p>
 
       {mostTraded && (

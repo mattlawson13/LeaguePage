@@ -9,7 +9,7 @@ export function ManagerDataError({ message }: { message: string }) {
       {isResolutionError && (
         <p className="mt-3 text-text-muted">
           <code className="text-sm">data/managers.json</code> could not be matched to real Sleeper accounts. This
-          fails loudly on purpose rather than silently dropping a manager from the site — fix the mismatch below and
+          fails loudly on purpose rather than silently dropping a manager from the site. Fix the mismatch below and
           reload.
         </p>
       )}

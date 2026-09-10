@@ -228,3 +228,18 @@ CREATE TABLE IF NOT EXISTS news_article_players (
   PRIMARY KEY (link, player_id)
 );
 CREATE INDEX IF NOT EXISTS idx_playoff_odds_snapshots_season ON playoff_odds_snapshots(season);
+
+-- One row per roster per ingest run, capturing that run's power-ranking
+-- score. Same rationale as playoff_odds_snapshots: no live write path in
+-- production, so movement (up/down arrows week over week) only exists
+-- because each ingest run appends a new row here.
+CREATE TABLE IF NOT EXISTS power_ranking_snapshots (
+  league_id TEXT NOT NULL,
+  season TEXT NOT NULL,
+  week INTEGER NOT NULL,
+  roster_id INTEGER NOT NULL,
+  score REAL NOT NULL,
+  fetched_at TEXT NOT NULL,
+  PRIMARY KEY (league_id, week, roster_id)
+);
+CREATE INDEX IF NOT EXISTS idx_power_ranking_snapshots_season ON power_ranking_snapshots(season);

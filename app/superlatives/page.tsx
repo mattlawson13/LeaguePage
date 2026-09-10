@@ -10,7 +10,7 @@ export default function SuperlativesPage() {
       <div className="py-14">
         <p className="text-sm text-text-muted">The league</p>
         <h1 className="font-condensed mt-1 text-3xl font-bold tracking-tight text-text">Superlatives</h1>
-        <p className="mt-4 text-text-muted">No completed week yet this season — check back once week 1 wraps.</p>
+        <p className="mt-4 text-text-muted">No completed week yet this season. Check back once week 1 wraps.</p>
       </div>
     );
   }

@@ -79,7 +79,7 @@ export function getWeeklySuperlatives(latest: LatestWeek, db: Database = getDb()
     results.push({
       title: "Team of the week",
       copy: template(`totw-${latest.season}-${latest.week}`, [
-        "{name} put up {pts} — the best score anyone managed this week.",
+        "{name} put up {pts}, the best score anyone managed this week.",
         "Nobody topped {name}'s {pts} points this week.",
       ], { name: name(topTeam.roster_id), pts: fmtPoints(topTeam.pts) }),
     });
@@ -111,7 +111,7 @@ export function getWeeklySuperlatives(latest: LatestWeek, db: Database = getDb()
       title: "Biggest blowout",
       copy: template(`blowout-${latest.season}-${latest.week}`, [
         "{winner} demolished {loser} by {margin} points.",
-        "{loser} never had a chance — {winner} won by {margin}.",
+        "{loser} never had a chance: {winner} won by {margin}.",
       ], { winner: name(blowout.winner), loser: name(blowout.loser), margin: fmtPoints(blowout.margin) }),
     });
   }
@@ -141,7 +141,7 @@ export function getWeeklySuperlatives(latest: LatestWeek, db: Database = getDb()
     results.push({
       title: "Biggest bench regret",
       copy: template(`bench-${latest.season}-${latest.week}`, [
-        "{name} left {pts} points on the bench — their optimal lineup would have scored that much more.",
+        "{name} left {pts} points on the bench; their optimal lineup would have scored that much more.",
         "{name} could've had {pts} more points with a better lineup.",
       ], { name: name(worstBench.rosterId), pts: fmtPoints(worstBench.result.pointsLeftOnBench) }),
     });
@@ -170,7 +170,7 @@ export function getSeasonalSuperlatives(season: string, leagueId: string, db: Da
     results.push({
       title: "Luckiest",
       copy: template(`luckiest-${season}`, [
-        "{name}'s actual win rate is running {pct}pts ahead of their all-play record — the schedule has been kind.",
+        "{name}'s actual win rate is running {pct}pts ahead of their all-play record; the schedule has been kind.",
         "{name} has won more than their all-play record says they should have, by {pct} points.",
       ], { name: nameByUser.get(luckiest.userId) ?? luckiest.userId, pct: (luckiest.luck * 100).toFixed(1) }),
     });
@@ -179,8 +179,8 @@ export function getSeasonalSuperlatives(season: string, leagueId: string, db: Da
     results.push({
       title: "Unluckiest",
       copy: template(`unluckiest-${season}`, [
-        "{name}'s all-play record is {pct}pts better than their actual record — rough schedule luck.",
-        "{name} deserves a better record than they have — {pct} points of bad luck so far.",
+        "{name}'s all-play record is {pct}pts better than their actual record: rough schedule luck.",
+        "{name} deserves a better record than they have, {pct} points of bad luck so far.",
       ], { name: nameByUser.get(unluckiest.userId) ?? unluckiest.userId, pct: (Math.abs(unluckiest.luck) * 100).toFixed(1) }),
     });
   }
@@ -202,7 +202,7 @@ export function getSeasonalSuperlatives(season: string, leagueId: string, db: Da
     results.push({
       title: "Most active trader",
       copy: template(`trader-${season}`, [
-        "{name} made {count} trades this season — more than anyone else in the league.",
+        "{name} made {count} trades this season, more than anyone else in the league.",
         "Nobody worked the phones harder than {name}: {count} trades this season.",
       ], { name: rosterInfo.get(rosterId)?.displayName ?? `Roster ${rosterId}`, count: String(count) }),
     });
@@ -248,7 +248,7 @@ export function getSeasonalSuperlatives(season: string, leagueId: string, db: Da
       title: "Waiver wire king",
       copy: template(`waiver-${season}`, [
         "{name}'s waiver pickups have combined for {pts} points this season, for ${faab} in FAAB.",
-        "${faab} in FAAB bought {name} {pts} points off the wire this season — nice work.",
+        "${faab} in FAAB bought {name} {pts} points off the wire this season. Nice work.",
       ], {
         name: rosterInfo.get(waiverKing.rosterId)?.displayName ?? `Roster ${waiverKing.rosterId}`,
         pts: fmtPoints(waiverKing.points),
@@ -270,7 +270,7 @@ export function getSeasonalSuperlatives(season: string, leagueId: string, db: Da
     results.push({
       title: "Draft-day winner",
       copy: template(`draft-${season}`, [
-        "{name}'s draft class has combined for {pts} points this season — the best haul in the league.",
+        "{name}'s draft class has combined for {pts} points this season, the best haul in the league.",
         "The draft board loved {name}: their picks have scored {pts} points this season.",
       ], { name: nameByUser.get(userId) ?? userId, pts: fmtPoints(points) }),
     });

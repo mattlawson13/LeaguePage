@@ -102,7 +102,7 @@ export function getPlayerHistory(db: Database = getDb()): PlayerHistoryRow[] {
       return {
         playerId: pid,
         name: info?.full_name ?? pid,
-        position: info?.position ?? "—",
+        position: info?.position ?? "-",
         team: info?.team ?? null,
         careerPoints: pointsByPlayer.get(pid) ?? 0,
         timesDrafted: draftCountByPlayer.get(pid) ?? 0,

@@ -25,7 +25,7 @@ export default function NewsPage() {
       </p>
 
       <div className="mt-10 divide-y divide-border border-t border-border">
-        {articles.length === 0 && <p className="py-6 text-text-muted">No relevant articles yet — check back after the next ingest.</p>}
+        {articles.length === 0 && <p className="py-6 text-text-muted">No relevant articles yet. Check back after the next ingest.</p>}
         {articles.map((a) => (
           <a key={a.link} href={a.link} target="_blank" rel="noopener noreferrer" className="group block py-4">
             <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">

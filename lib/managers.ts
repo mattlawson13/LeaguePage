@@ -42,7 +42,7 @@ function normalizeUsername(name: string): string {
 export function resolveManagers(db: Database = getDb()): ResolvedManager[] {
   const league = getCurrentLeague(db);
   if (!league) {
-    throw new Error("resolveManagers: no league ingested yet — run the ingest script first.");
+    throw new Error("resolveManagers: no league ingested yet. Run the ingest script first.");
   }
 
   const users = db
@@ -69,7 +69,7 @@ export function resolveManagers(db: Database = getDb()): ResolvedManager[] {
     throw new Error(
       `resolveManagers: ${unmatched.length} manager(s) in data/managers.json failed to resolve to a Sleeper user_id.\n` +
         `Unmatched sleeper_username values: ${unmatched.map((n) => `"${n}"`).join(", ")}\n` +
-        `These must match a current league display_name exactly (case-insensitive, trimmed) — team names and old ` +
+        `These must match a current league display_name exactly (case-insensitive, trimmed); team names and old ` +
         `display names don't count.\n` +
         `Real current display_name values in this league: ${realNames.join(", ")}`,
     );
@@ -270,7 +270,7 @@ export interface SeasonHistoryRow {
 }
 
 function finishToResult(finish: number | null, playoffTeams: number): string {
-  if (finish === null) return "—";
+  if (finish === null) return "-";
   if (finish === 1) return "Champion";
   if (finish === 2) return "Runner-up";
   if (finish <= playoffTeams) return `${ordinal(finish)} Place`;
@@ -349,7 +349,7 @@ export function getManagerCurrentRoster(userId: string, db: Database = getDb()):
   return playerIds
     .map((id) => {
       const p = byId.get(id);
-      return { playerId: id, name: p?.full_name ?? id, position: p?.position ?? "—", team: p?.team ?? null };
+      return { playerId: id, name: p?.full_name ?? id, position: p?.position ?? "-", team: p?.team ?? null };
     })
     .sort((a, b) => {
       const ai = positionOrder.indexOf(a.position);

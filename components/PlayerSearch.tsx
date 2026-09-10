@@ -60,17 +60,17 @@ export function PlayerSearch({ players }: { players: PlayerHistoryRow[] }) {
               <tr key={p.playerId} className="border-b border-border">
                 <td className="py-2 pr-2 text-text">{p.name}</td>
                 <td className="table-mono py-2 pr-2 text-text-dim">{p.position}</td>
-                <td className="table-mono py-2 pr-2 text-text-muted">{p.team ?? "—"}</td>
-                <td className="py-2 pr-2 text-text-muted">{p.currentManager ?? "—"}</td>
+                <td className="table-mono py-2 pr-2 text-text-muted">{p.team ?? "-"}</td>
+                <td className="py-2 pr-2 text-text-muted">{p.currentManager ?? "-"}</td>
                 <td className="table-mono py-2 pr-2 text-right text-text">{fmtPoints(p.careerPoints)}</td>
-                <td className="table-mono py-2 pr-2 text-right text-text-muted">{p.timesDrafted || "—"}</td>
-                <td className="table-mono py-2 text-right text-text-muted">{p.timesTraded || "—"}</td>
+                <td className="table-mono py-2 pr-2 text-right text-text-muted">{p.timesDrafted || "-"}</td>
+                <td className="table-mono py-2 text-right text-text-muted">{p.timesTraded || "-"}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {filtered.length > 300 && (
-          <p className="mt-3 text-sm text-text-dim">Showing the top 300 of {filtered.length} — narrow your search to see more.</p>
+          <p className="mt-3 text-sm text-text-dim">Showing the top 300 of {filtered.length}. Narrow your search to see more.</p>
         )}
       </div>
     </div>

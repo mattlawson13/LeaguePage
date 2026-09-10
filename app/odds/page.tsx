@@ -18,7 +18,7 @@ export default function OddsPage() {
   const managers = resolveManagers();
 
   if (!league) {
-    return <div className="py-14 text-text-muted">No league data ingested yet — run the ingest script.</div>;
+    return <div className="py-14 text-text-muted">No league data ingested yet. Run the ingest script.</div>;
   }
 
   const nameLink = (userId: string | null, name: string) => {

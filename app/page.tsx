@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentLeague, getCurrentWeek, getSeasons } from "@/lib/league";
 import { getManagerCareerStats } from "@/lib/stats";
 import { fmtPoints } from "@/lib/format";
+import leagueInfo from "@/data/league.json";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +21,15 @@ export default function Home() {
   return (
     <div className="py-14">
       <p className="text-sm text-text-muted">
-        {league?.season ?? "—"} season · week {week}
+        {league?.season ?? "-"} season · week {week}
       </p>
       <h1 className="font-condensed mt-1 text-4xl font-bold tracking-tight text-text sm:text-5xl">
         {league?.name ?? "League Hub"}
       </h1>
-      <p className="mt-3 max-w-md text-text-muted">
-        {seasons.length} season{seasons.length === 1 ? "" : "s"} of history, served from a local database — Sleeper
-        is never called on page load.
+      <p className="mt-3 max-w-md text-text-muted">{leagueInfo.bio}</p>
+      <p className="mt-1 text-xs text-text-dim">
+        {seasons.length} season{seasons.length === 1 ? "" : "s"} of history, served from a local database. Sleeper is
+        never called on page load.
       </p>
 
       <div className="mt-10 divide-y divide-border border-t border-border">

@@ -14,6 +14,7 @@ import Parser from "rss-parser";
 import { getDb } from "../lib/db/client";
 import { sleep, sleeper } from "../lib/sleeper";
 import { simulatePlayoffOdds } from "../lib/playoffOdds";
+import { computePowerRankings } from "../lib/powerRankings";
 import { getCurrentWeek } from "../lib/league";
 import { getCurrentlyRosteredPlayerNames } from "../lib/news";
 import type {
@@ -547,7 +548,46 @@ async function ingestCurrent(db: ReturnType<typeof getDb>) {
   await ingestTrending(db);
   await ingestPlayers(db, false);
   snapshotPlayoffOdds(db);
+  snapshotPowerRankings(db);
   await ingestNews(db);
+}
+
+/**
+ * Stores this run's power-ranking scores, one row per roster for the current
+ * week. Same rationale as snapshotPlayoffOdds: the week-over-week movement
+ * arrows on the Power Rankings page only exist because each ingest run
+ * appends a new row here.
+ */
+function snapshotPowerRankings(db: ReturnType<typeof getDb>) {
+  const rankings = computePowerRankings(db);
+  if (rankings.length === 0) return;
+  const league = db.prepare(`SELECT league_id, season FROM leagues ORDER BY season DESC LIMIT 1`).get() as
+    | { league_id: string; season: string }
+    | undefined;
+  if (!league) return;
+
+  const week = getCurrentWeek(db);
+  const insert = db.prepare(
+    `INSERT INTO power_ranking_snapshots (league_id, season, week, roster_id, score, fetched_at)
+     VALUES (@league_id, @season, @week, @roster_id, @score, @fetched_at)
+     ON CONFLICT(league_id, week, roster_id) DO UPDATE SET
+       score=excluded.score, fetched_at=excluded.fetched_at`,
+  );
+  const fetchedAt = now();
+  const tx = db.transaction(() => {
+    for (const r of rankings) {
+      insert.run({
+        league_id: league.league_id,
+        season: league.season,
+        week,
+        roster_id: r.rosterId,
+        score: r.score,
+        fetched_at: fetchedAt,
+      });
+    }
+  });
+  tx();
+  console.log(`power rankings: snapshotted week ${week} for ${rankings.length} rosters`);
 }
 
 async function ingestFullHistory(db: ReturnType<typeof getDb>) {

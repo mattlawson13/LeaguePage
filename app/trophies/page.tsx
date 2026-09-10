@@ -75,7 +75,7 @@ export default function TrophiesPage() {
                       <div className="mt-2 space-y-1">
                         {seasons.map((season) => (
                           <p key={season} className="table-mono text-sm text-text-muted">
-                            {season} — {entries[season].winner}
+                            {season} · {entries[season].winner}
                             {entries[season].note ? ` (${entries[season].note})` : ""}
                           </p>
                         ))}
@@ -98,7 +98,7 @@ export default function TrophiesPage() {
                         const href = userIdToHref(r.userId, managers);
                         return (
                           <p key={`${r.season}-${i}`} className="table-mono text-sm">
-                            <span className="text-text-dim">{r.season} — </span>
+                            <span className="text-text-dim">{r.season} · </span>
                             {href ? (
                               <Link href={href} className="text-text hover:text-accent">
                                 {r.displayName}

@@ -25,7 +25,7 @@ function ManagerCell({ name, color, avatar }: { name: string; color: string; ava
 export default function StandingsPage() {
   const league = getCurrentLeague();
   if (!league) {
-    return <div className="py-14 text-text-muted">No league data ingested yet — run the ingest script.</div>;
+    return <div className="py-14 text-text-muted">No league data ingested yet. Run the ingest script.</div>;
   }
 
   const standings = getSeasonStandings(league.league_id);
@@ -99,8 +99,8 @@ export default function StandingsPage() {
                 <td className="table-mono py-2.5 pr-2 text-right">{fmtRecord(m.wins, m.losses, m.ties)}</td>
                 <td className="table-mono py-2.5 pr-2 text-right">{fmtPoints(m.pf)}</td>
                 <td className="table-mono py-2.5 pr-2 text-right text-text-muted">{fmtPoints(m.avgPf)}</td>
-                <td className="table-mono py-2.5 pr-2 text-right text-gold">{m.titles || "—"}</td>
-                <td className="table-mono py-2.5 text-right text-text-muted">{m.playoffAppearances || "—"}</td>
+                <td className="table-mono py-2.5 pr-2 text-right text-gold">{m.titles || "-"}</td>
+                <td className="table-mono py-2.5 text-right text-text-muted">{m.playoffAppearances || "-"}</td>
               </tr>
             ))}
           </tbody>

@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS: { href: string; label: string }[] = [
   { href: "/matchups", label: "Matchups" },
+  { href: "/power-rankings", label: "Power Rankings" },
   { href: "/standings", label: "Standings" },
   { href: "/transactions", label: "Transactions" },
   { href: "/playoff-odds", label: "Playoff Odds" },
@@ -17,6 +18,7 @@ const LINKS: { href: string; label: string }[] = [
   { href: "/managers", label: "Managers" },
   { href: "/rivalries", label: "Rivalries" },
   { href: "/news", label: "News" },
+  { href: "/wordle", label: "Wordle" },
 ];
 
 export function Nav() {
