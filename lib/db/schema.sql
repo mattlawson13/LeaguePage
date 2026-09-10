@@ -192,3 +192,39 @@ CREATE TABLE IF NOT EXISTS ingest_meta (
   key TEXT PRIMARY KEY,
   last_fetched_at TEXT NOT NULL
 );
+
+-- One row per roster per ingest run, capturing that run's playoff-odds
+-- simulation output. Accumulates over the season so the playoff-odds page
+-- can chart week-over-week movement — there's no live write path in
+-- production, so this is the only way that trend data exists at all.
+CREATE TABLE IF NOT EXISTS playoff_odds_snapshots (
+  league_id TEXT NOT NULL,
+  season TEXT NOT NULL,
+  week INTEGER NOT NULL,
+  roster_id INTEGER NOT NULL,
+  make_playoffs_pct REAL NOT NULL,
+  title_pct REAL NOT NULL,
+  last_place_pct REAL NOT NULL,
+  fetched_at TEXT NOT NULL,
+  PRIMARY KEY (league_id, week, roster_id)
+);
+
+-- RSS ingest, deduped by link. Only articles that mention a currently
+-- rostered player get stored at all (per spec) — news_article_players is
+-- the many-to-many join to those matches.
+CREATE TABLE IF NOT EXISTS news_articles (
+  link TEXT PRIMARY KEY,
+  source TEXT NOT NULL,
+  title TEXT NOT NULL,
+  summary TEXT,
+  pub_date TEXT,
+  fetched_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_news_articles_pub_date ON news_articles(pub_date);
+
+CREATE TABLE IF NOT EXISTS news_article_players (
+  link TEXT NOT NULL,
+  player_id TEXT NOT NULL,
+  PRIMARY KEY (link, player_id)
+);
+CREATE INDEX IF NOT EXISTS idx_playoff_odds_snapshots_season ON playoff_odds_snapshots(season);

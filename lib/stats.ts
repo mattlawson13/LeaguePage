@@ -2,6 +2,7 @@
 // SQLite DB populated by scripts/ingest.ts — nothing here calls Sleeper.
 import type { Database } from "better-sqlite3";
 import { getDb } from "./db/client";
+import { getNflState } from "./league";
 
 export interface ManagerRow {
   user_id: string;
@@ -355,7 +356,7 @@ export function getAllPlayByWeek(db: Database = getDb()): WeeklyAllPlay[] {
         points: pointsOf(m),
         matchupId: m.matchup_id,
       }))
-      .filter((t) => t.ownerId);
+      .filter((t) => t.ownerId && t.points !== 0); // not played yet (Sleeper publishes the full schedule ahead of time)
 
     for (const team of teams) {
       let allPlayWins = 0;
@@ -447,13 +448,25 @@ export function getScoringDistributions(db: Database = getDb(), season?: string)
   }
   const matchups = db.prepare(query).all(...params) as MatchupRow[];
 
+  // The live season's current week is frequently *partially* played (e.g.
+  // only Thursday night has kicked off) — a handful of real games mixed
+  // with a roster's still-scoreless bench reads as a valid low score
+  // instead of an in-progress one, corrupting the whole distribution. Drop
+  // that week entirely until Sleeper's own state advances past it.
+  const state = getNflState(db);
+  const liveSeason = state?.season;
+  const currentWeek = state?.week;
+
   const byUserSeason = new Map<string, number[]>();
   for (const m of matchups) {
+    if (liveSeason && currentWeek && m.season === liveSeason && m.week >= currentWeek) continue;
+    const points = pointsOf(m);
+    if (points === 0) continue; // not played yet (Sleeper publishes the full schedule ahead of time)
     const ownerId = ownerByLeagueRoster.get(`${m.league_id}:${m.roster_id}`);
     if (!ownerId) continue;
     const key = `${ownerId}:${m.season}`;
     if (!byUserSeason.has(key)) byUserSeason.set(key, []);
-    byUserSeason.get(key)!.push(pointsOf(m));
+    byUserSeason.get(key)!.push(points);
   }
 
   const out: ScoringDistribution[] = [];

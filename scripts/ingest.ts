@@ -10,8 +10,12 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import Parser from "rss-parser";
 import { getDb } from "../lib/db/client";
 import { sleep, sleeper } from "../lib/sleeper";
+import { simulatePlayoffOdds } from "../lib/playoffOdds";
+import { getCurrentWeek } from "../lib/league";
+import { getCurrentlyRosteredPlayerNames } from "../lib/news";
 import type {
   BracketMatch,
   League,
@@ -23,6 +27,16 @@ const ROOT_LEAGUE_ID = "1316847782803296256";
 const CALL_DELAY_MS = 120; // polite pacing, nowhere near Sleeper's ~1000/min cap
 const PLAYERS_CACHE_PATH = path.join(process.cwd(), "data", "players.json");
 const MAX_WEEKS_PER_SEASON = 18;
+
+// Confirmed working public RSS feeds as of this writing — PFF and Underdog
+// don't publish a public feed we could find, so they're skipped rather than
+// pointed at a guessed URL that would silently return nothing.
+const NEWS_FEEDS: { source: string; url: string }[] = [
+  { source: "ESPN", url: "https://www.espn.com/espn/rss/nfl/news" },
+  { source: "RotoWire", url: "https://www.rotowire.com/rss/news.php?sport=NFL" },
+  { source: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nfl/" },
+  { source: "PFF", url: "https://www.pff.com/feed" },
+];
 
 const now = () => new Date().toISOString();
 
@@ -396,6 +410,60 @@ async function ingestTrending(db: ReturnType<typeof getDb>) {
   tx();
 }
 
+/**
+ * Pulls each RSS feed, keeps only articles that mention a currently
+ * rostered player (full-name substring match — cheap and low false-positive
+ * risk since it requires the whole name, not just a common last name),
+ * dedupes by link, and tags each stored article with the players it
+ * mentions. One dead feed doesn't stop the others.
+ */
+async function ingestNews(db: ReturnType<typeof getDb>) {
+  const rosteredPlayers = getCurrentlyRosteredPlayerNames(db);
+  if (rosteredPlayers.length === 0) {
+    console.log("news: no rostered players found, skipping");
+    return;
+  }
+  const namedPlayers = rosteredPlayers.map((p) => ({ ...p, needle: p.fullName.toLowerCase() }));
+
+  const parser = new Parser({ timeout: 10000 });
+  const insertArticle = db.prepare(
+    `INSERT INTO news_articles (link, source, title, summary, pub_date, fetched_at)
+     VALUES (@link, @source, @title, @summary, @pub_date, @fetched_at)
+     ON CONFLICT(link) DO NOTHING`,
+  );
+  const insertMatch = db.prepare(
+    `INSERT INTO news_article_players (link, player_id) VALUES (?, ?) ON CONFLICT(link, player_id) DO NOTHING`,
+  );
+
+  let stored = 0;
+  for (const feed of NEWS_FEEDS) {
+    try {
+      const parsed = await parser.parseURL(feed.url);
+      for (const item of parsed.items) {
+        if (!item.link) continue;
+        const text = `${item.title ?? ""} ${item.contentSnippet ?? item.content ?? item.summary ?? ""}`.toLowerCase();
+        const matches = namedPlayers.filter((p) => text.includes(p.needle));
+        if (matches.length === 0) continue;
+
+        insertArticle.run({
+          link: item.link,
+          source: feed.source,
+          title: item.title ?? "(untitled)",
+          summary: (item.contentSnippet ?? "").slice(0, 500),
+          pub_date: item.pubDate ?? item.isoDate ?? null,
+          fetched_at: now(),
+        });
+        for (const m of matches) insertMatch.run(item.link, m.playerId);
+        stored++;
+      }
+      await sleep(CALL_DELAY_MS);
+    } catch (err) {
+      console.error(`news: failed to fetch ${feed.source} (${feed.url})`, err instanceof Error ? err.message : err);
+    }
+  }
+  console.log(`news: ${stored} relevant articles stored across ${NEWS_FEEDS.length} feeds`);
+}
+
 /** One season's full ingest: league, users, rosters, matchups, transactions, brackets, picks, draft. */
 async function ingestSeason(db: ReturnType<typeof getDb>, leagueId: string, maxWeek: number) {
   const league = await paced(() => sleeper.getLeague(leagueId));
@@ -426,14 +494,60 @@ async function ingestSeason(db: ReturnType<typeof getDb>, leagueId: string, maxW
   return league;
 }
 
+/**
+ * Runs the playoff-odds Monte Carlo and stores one row per roster for the
+ * current week. This is the only place that simulation ever runs against
+ * live data — production reads a committed snapshot, so "week-over-week
+ * movement" only exists because each ingest run appends to this table.
+ */
+function snapshotPlayoffOdds(db: ReturnType<typeof getDb>) {
+  const run = simulatePlayoffOdds(db);
+  if (!run) return;
+  const league = db.prepare(`SELECT league_id FROM leagues WHERE season = ?`).get(run.season) as
+    | { league_id: string }
+    | undefined;
+  if (!league) return;
+
+  const week = getCurrentWeek(db);
+  const insert = db.prepare(
+    `INSERT INTO playoff_odds_snapshots (league_id, season, week, roster_id, make_playoffs_pct, title_pct, last_place_pct, fetched_at)
+     VALUES (@league_id, @season, @week, @roster_id, @make_playoffs_pct, @title_pct, @last_place_pct, @fetched_at)
+     ON CONFLICT(league_id, week, roster_id) DO UPDATE SET
+       make_playoffs_pct=excluded.make_playoffs_pct, title_pct=excluded.title_pct,
+       last_place_pct=excluded.last_place_pct, fetched_at=excluded.fetched_at`,
+  );
+  const fetchedAt = now();
+  const tx = db.transaction(() => {
+    for (const r of run.results) {
+      insert.run({
+        league_id: league.league_id,
+        season: run.season,
+        week,
+        roster_id: r.rosterId,
+        make_playoffs_pct: r.makePlayoffsPct,
+        title_pct: r.titlePct,
+        last_place_pct: r.lastPlacePct,
+        fetched_at: fetchedAt,
+      });
+    }
+  });
+  tx();
+  console.log(`playoff odds: snapshotted week ${week} for ${run.results.length} rosters`);
+}
+
 async function ingestCurrent(db: ReturnType<typeof getDb>) {
   const state = await sleeper.getNflState();
   upsertNflState(db, state);
 
-  const currentWeek = state.display_week || state.week || 1;
-  await ingestSeason(db, ROOT_LEAGUE_ID, currentWeek);
+  // Sleeper publishes the full-season matchup schedule (real matchup_id
+  // pairings, 0 points) well before those weeks are played — ingest all of
+  // it, not just weeks through today, so playoff-odds sims know the actual
+  // remaining schedule instead of guessing at random opponents.
+  await ingestSeason(db, ROOT_LEAGUE_ID, MAX_WEEKS_PER_SEASON);
   await ingestTrending(db);
   await ingestPlayers(db, false);
+  snapshotPlayoffOdds(db);
+  await ingestNews(db);
 }
 
 async function ingestFullHistory(db: ReturnType<typeof getDb>) {
