@@ -4,7 +4,6 @@ import { getMatchupArticle, getMatchupPreview } from "@/lib/beatWriter";
 import { getPlayerHistory } from "@/lib/players";
 import { WeekSelector } from "@/components/WeekSelector";
 import { MatchupCard } from "@/components/MatchupCard";
-import { LiveScoreboard } from "@/components/LiveScoreboard";
 
 export const dynamic = "force-dynamic";
 
@@ -45,12 +44,6 @@ export default async function MatchupsPage({
       <div className="mt-6">
         <WeekSelector seasons={seasons} season={season} week={week} />
       </div>
-
-      {isLiveWeek && (
-        <div className="mt-8">
-          <LiveScoreboard leagueId={league.league_id} />
-        </div>
-      )}
 
       <div className="mt-8 divide-y divide-border border-t border-border">
         {matchups.length === 0 && <p className="py-6 text-text-muted">No matchups recorded for this week yet.</p>}

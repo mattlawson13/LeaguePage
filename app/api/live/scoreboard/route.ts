@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const filtered = relevant
       ? games.filter((g) => relevant.has(g.homeTeam) || relevant.has(g.awayTeam))
       : games;
-    return NextResponse.json({ games: filtered });
+    return NextResponse.json({ games: filtered, season: state.season, week: state.week });
   } catch {
     return NextResponse.json({ games: [], error: "unavailable" }, { status: 502 });
   }

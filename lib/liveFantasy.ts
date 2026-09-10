@@ -30,6 +30,71 @@ export interface LiveMatchup {
   teamB: LiveMatchupTeam;
 }
 
+const POSITION_ORDER = ["QB", "RB", "WR", "TE", "K", "DEF"];
+
+export interface LiveGamePlayer {
+  playerId: string;
+  name: string;
+  position: string;
+  managerName: string | null;
+  points: number;
+}
+
+/**
+ * Every player in this league rostered by anyone (any manager, starter or
+ * bench) who plays for one real NFL team, with live fantasy points. This is
+ * scoped to an NFL game, not a fantasy matchup, so players on the same side
+ * here can belong to entirely different fantasy managers (or none, if the
+ * league has nobody rostering that player).
+ */
+export async function getLiveGamePlayers(
+  leagueId: string,
+  week: number,
+  teamAbbr: string,
+  db: Database = getDb(),
+): Promise<LiveGamePlayer[]> {
+  const liveMatchups = await sleeper.getMatchups(leagueId, week);
+  const pointsByPlayer = new Map<string, number>();
+  for (const m of liveMatchups) {
+    if (!m.players_points) continue;
+    for (const [pid, pts] of Object.entries(m.players_points)) pointsByPlayer.set(pid, pts);
+  }
+
+  const rosterRows = db
+    .prepare(
+      `SELECT r.players_json as players_json, COALESCE(lu.display_name, r.owner_id, 'Roster ' || r.roster_id) as manager_name
+       FROM rosters r LEFT JOIN league_users lu ON lu.league_id = r.league_id AND lu.user_id = r.owner_id
+       WHERE r.league_id = ?`,
+    )
+    .all(leagueId) as { players_json: string; manager_name: string }[];
+
+  const managerByPlayer = new Map<string, string>();
+  for (const r of rosterRows) {
+    for (const pid of JSON.parse(r.players_json) as string[]) managerByPlayer.set(pid, r.manager_name);
+  }
+
+  const rosteredIds = Array.from(managerByPlayer.keys()).filter((id) => id !== "0");
+  if (rosteredIds.length === 0) return [];
+
+  const placeholders = rosteredIds.map(() => "?").join(",");
+  const players = db
+    .prepare(`SELECT player_id, full_name, position FROM players WHERE player_id IN (${placeholders}) AND team = ?`)
+    .all(...rosteredIds, teamAbbr) as { player_id: string; full_name: string | null; position: string | null }[];
+
+  return players
+    .map((p) => ({
+      playerId: p.player_id,
+      name: p.full_name ?? p.player_id,
+      position: p.position ?? "-",
+      managerName: managerByPlayer.get(p.player_id) ?? null,
+      points: pointsByPlayer.get(p.player_id) ?? 0,
+    }))
+    .sort((a, b) => {
+      const posDiff = POSITION_ORDER.indexOf(a.position) - POSITION_ORDER.indexOf(b.position);
+      return posDiff !== 0 ? posDiff : b.points - a.points;
+    });
+}
+
 export async function getLiveMatchup(
   leagueId: string,
   week: number,
