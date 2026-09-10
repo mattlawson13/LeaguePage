@@ -1,6 +1,7 @@
-import { getCurrentLeague, getCurrentWeek, getLeagueForSeason, getSeasons } from "@/lib/league";
+import { getCurrentLeague, getCurrentWeek, getLeagueForSeason, getSeasons, isWeekFinal } from "@/lib/league";
 import { getWeekMatchups } from "@/lib/matchups";
-import { getMatchupArticle } from "@/lib/beatWriter";
+import { getMatchupArticle, getMatchupPreview } from "@/lib/beatWriter";
+import { getPlayerHistory } from "@/lib/players";
 import { WeekSelector } from "@/components/WeekSelector";
 import { MatchupCard } from "@/components/MatchupCard";
 
@@ -25,6 +26,10 @@ export default async function MatchupsPage({
   }
 
   const matchups = getWeekMatchups(league.league_id, week);
+  const weekFinal = isWeekFinal(season, week);
+  const careerPointsById = weekFinal
+    ? null
+    : new Map(getPlayerHistory().map((p) => [p.playerId, p.careerPoints]));
 
   return (
     <div className="py-14">
@@ -38,9 +43,12 @@ export default async function MatchupsPage({
       <div className="mt-8 divide-y divide-border border-t border-border">
         {matchups.length === 0 && <p className="py-6 text-text-muted">No matchups recorded for this week yet.</p>}
         {matchups.map((m) => {
-          const played = m.teams.every((t) => t.points > 0);
-          const article = played ? getMatchupArticle(m, league.league_id, season, week) : null;
-          return <MatchupCard key={m.matchupId} teams={m.teams} article={article} />;
+          const article = weekFinal
+            ? getMatchupArticle(m, league.league_id, season, week)
+            : getMatchupPreview(m, league.league_id, season, week, careerPointsById!);
+          return (
+            <MatchupCard key={m.matchupId} teams={m.teams} article={article} articleKind={weekFinal ? "recap" : "preview"} />
+          );
         })}
       </div>
     </div>

@@ -37,7 +37,7 @@ export interface NewsArticle {
   title: string;
   summary: string | null;
   pubDate: string | null;
-  players: { playerId: string; name: string; managerName: string | null }[];
+  players: { playerId: string; name: string; team: string | null; managerName: string | null }[];
 }
 
 export function getNewsFeed(limit = 60, db: Database = getDb()): NewsArticle[] {
@@ -65,11 +65,11 @@ export function getNewsFeed(limit = 60, db: Database = getDb()): NewsArticle[] {
   const placeholders = links.map(() => "?").join(",");
   const playerLinks = db
     .prepare(
-      `SELECT nap.link as link, nap.player_id as player_id, p.full_name as full_name
+      `SELECT nap.link as link, nap.player_id as player_id, p.full_name as full_name, p.team as team
        FROM news_article_players nap LEFT JOIN players p ON p.player_id = nap.player_id
        WHERE nap.link IN (${placeholders})`,
     )
-    .all(...links) as { link: string; player_id: string; full_name: string | null }[];
+    .all(...links) as { link: string; player_id: string; full_name: string | null; team: string | null }[];
 
   const playersByLink = new Map<string, NewsArticle["players"]>();
   for (const pl of playerLinks) {
@@ -77,6 +77,7 @@ export function getNewsFeed(limit = 60, db: Database = getDb()): NewsArticle[] {
     playersByLink.get(pl.link)!.push({
       playerId: pl.player_id,
       name: pl.full_name ?? pl.player_id,
+      team: pl.team,
       managerName: managerByPlayer.get(pl.player_id) ?? null,
     });
   }

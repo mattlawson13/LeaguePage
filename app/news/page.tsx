@@ -1,13 +1,7 @@
 import { getNewsFeed, getTrendingPlayers } from "@/lib/news";
+import { NewsFeed } from "@/components/NewsFeed";
 
 export const dynamic = "force-dynamic";
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
 
 export default function NewsPage() {
   const articles = getNewsFeed();
@@ -24,33 +18,12 @@ export default function NewsPage() {
         PFF.
       </p>
 
-      <div className="mt-10 divide-y divide-border border-t border-border">
-        {articles.length === 0 && <p className="py-6 text-text-muted">No relevant articles yet. Check back after the next ingest.</p>}
-        {articles.map((a) => (
-          <a key={a.link} href={a.link} target="_blank" rel="noopener noreferrer" className="group block py-4">
-            <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
-              <span>{a.source}</span>
-              {a.pubDate && (
-                <>
-                  <span>·</span>
-                  <span>{formatDate(a.pubDate)}</span>
-                </>
-              )}
-            </div>
-            <p className="mt-1 text-text group-hover:text-accent">{a.title}</p>
-            {a.players.length > 0 && (
-              <p className="mt-1 text-sm text-text-dim">
-                {a.players.map((p, i) => (
-                  <span key={p.playerId}>
-                    {i > 0 && ", "}
-                    {p.name}
-                    {p.managerName ? ` (${p.managerName})` : ""}
-                  </span>
-                ))}
-              </p>
-            )}
-          </a>
-        ))}
+      <div className="mt-10">
+        {articles.length === 0 ? (
+          <p className="py-6 text-text-muted">No relevant articles yet. Check back after the next ingest.</p>
+        ) : (
+          <NewsFeed articles={articles} />
+        )}
       </div>
 
       {(trendingAdds.length > 0 || trendingDrops.length > 0) && (

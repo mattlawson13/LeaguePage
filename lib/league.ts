@@ -80,6 +80,14 @@ export function getCurrentWeek(db: Database = getDb()): number {
   return state?.display_week || state?.week || 1;
 }
 
+/** Whether a given season/week has already been played out, per Sleeper's own reported current week, rather than by inspecting individual matchup scores (a still-in-progress week can have some scores in and others at 0, which looks a lot like "not started" and "final" at the same time). */
+export function isWeekFinal(season: string, week: number, db: Database = getDb()): boolean {
+  const state = getNflState(db);
+  if (!state) return true; // no live state at all means this DB is fully historical
+  if (season !== state.season) return season < state.season;
+  return week < state.week;
+}
+
 export function getRosterManagers(leagueId: string, db: Database = getDb()): Map<number, RosterManager> {
   const rows = db
     .prepare(

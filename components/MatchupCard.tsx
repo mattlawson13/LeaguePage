@@ -44,7 +44,15 @@ function PlayerRow({ playerId, name, position, team, points }: { playerId: strin
   );
 }
 
-export function MatchupCard({ teams, article }: { teams: MatchupTeam[]; article?: MatchupArticle | null }) {
+export function MatchupCard({
+  teams,
+  article,
+  articleKind = "recap",
+}: {
+  teams: MatchupTeam[];
+  article?: MatchupArticle | null;
+  articleKind?: "recap" | "preview";
+}) {
   const [showBench, setShowBench] = useState(false);
   const [showArticle, setShowArticle] = useState(false);
   const [teamA, teamB] = teams;
@@ -80,7 +88,13 @@ export function MatchupCard({ teams, article }: { teams: MatchupTeam[]; article?
             onClick={() => setShowArticle((v) => !v)}
             className="text-sm text-text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
           >
-            {showArticle ? "Hide recap" : "Read the recap"}
+            {showArticle
+              ? articleKind === "preview"
+                ? "Hide preview"
+                : "Hide recap"
+              : articleKind === "preview"
+                ? "Read the preview"
+                : "Read the recap"}
           </button>
         )}
       </div>
