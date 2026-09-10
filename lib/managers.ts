@@ -132,7 +132,7 @@ interface BracketMatch {
  * across seasons to trust for exact placement, so this is a deliberate,
  * documented approximation rather than a guess dressed up as fact.
  */
-function getSeasonFinishes(leagueId: string, db: Database): { finishes: Map<number, number>; playoffTeams: number } {
+export function getSeasonFinishes(leagueId: string, db: Database): { finishes: Map<number, number>; playoffTeams: number } {
   const finishes = new Map<number, number>();
   const qualified = new Set<number>();
 

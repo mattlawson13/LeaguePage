@@ -26,18 +26,16 @@ export default async function MatchupsPage({
   const matchups = getWeekMatchups(league.league_id, week);
 
   return (
-    <div className="py-10">
-      <p className="font-condensed text-sm font-semibold uppercase tracking-widest text-accent">{season} Season</p>
-      <h1 className="font-condensed mt-2 text-4xl font-bold uppercase tracking-wide">Matchups</h1>
+    <div className="py-14">
+      <p className="text-sm text-text-muted">{season} season</p>
+      <h1 className="font-condensed mt-1 text-3xl font-bold tracking-tight text-text">Matchups</h1>
 
       <div className="mt-6">
         <WeekSelector seasons={seasons} season={season} week={week} />
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {matchups.length === 0 && (
-          <p className="text-text-muted">No matchups recorded for this week yet.</p>
-        )}
+      <div className="mt-8 divide-y divide-border border-t border-border">
+        {matchups.length === 0 && <p className="py-6 text-text-muted">No matchups recorded for this week yet.</p>}
         {matchups.map((m) => (
           <MatchupCard key={m.matchupId} teams={m.teams} />
         ))}

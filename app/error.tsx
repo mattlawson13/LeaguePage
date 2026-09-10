@@ -2,6 +2,6 @@
 
 import { ManagerDataError } from "@/components/ManagerDataError";
 
-export default function ManagersError({ error }: { error: Error & { digest?: string } }) {
+export default function RootError({ error }: { error: Error & { digest?: string } }) {
   return <ManagerDataError message={error.message} />;
 }

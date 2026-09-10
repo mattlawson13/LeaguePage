@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS: { href: string; label: string }[] = [
   { href: "/matchups", label: "Matchups" },
@@ -22,23 +23,24 @@ export function Nav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-base/95 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-6 px-4">
-        <Link href="/" className="font-condensed shrink-0 py-3 text-xl font-bold uppercase tracking-wide text-text">
-          Lawson FF Gang
-        </Link>
-        <nav className="scrollbar-none flex-1 overflow-x-auto">
-          <ul className="flex items-center gap-1 whitespace-nowrap">
+    <header className="border-b border-border">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="flex items-center justify-between gap-4 pt-4">
+          <Link href="/" className="font-condensed text-lg font-bold tracking-tight text-text">
+            Lawson FF Gang
+          </Link>
+          <ThemeToggle />
+        </div>
+        <nav className="overflow-x-auto">
+          <ul className="flex flex-wrap items-center gap-x-5 gap-y-1 whitespace-nowrap">
             {LINKS.map((link) => {
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`font-condensed block rounded px-3 py-3 text-sm font-semibold uppercase tracking-wide transition-colors ${
-                      active
-                        ? "text-accent"
-                        : "text-text-muted hover:text-text"
+                    className={`block border-b-2 py-3 text-sm transition-colors ${
+                      active ? "border-accent text-text" : "border-transparent text-text-muted hover:text-text"
                     }`}
                   >
                     {link.label}

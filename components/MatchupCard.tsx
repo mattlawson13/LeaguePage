@@ -1,31 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import type { MatchupTeam } from "@/lib/matchups";
 import { avatarUrl, fmtPoints } from "@/lib/format";
 import { managerColor } from "@/lib/managerColors";
+import { CdnImage } from "./CdnImage";
 
-function TeamHeader({ team, isWinner }: { team: MatchupTeam; isWinner: boolean }) {
+function TeamHeader({ team, isWinner, align }: { team: MatchupTeam; isWinner: boolean; align: "left" | "right" }) {
   const src = avatarUrl(team.avatar);
-  const color = team.userId ? managerColor(team.userId) : "#666";
+  const color = team.userId ? managerColor(team.userId) : "var(--color-text-dim)";
+  const avatarEl = (
+    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-base">
+      {src ? (
+        <CdnImage src={src} alt="" width={32} height={32} unoptimized />
+      ) : (
+        <span className="text-xs text-text-dim">{team.managerName.slice(0, 1)}</span>
+      )}
+    </div>
+  );
+  const nameEl = (
+    <p className={`truncate text-sm ${isWinner ? "text-text" : "text-text-muted"}`}>{team.managerName}</p>
+  );
   return (
-    <div className="flex items-center gap-3">
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2"
-        style={{ borderColor: color }}
-      >
-        {src ? (
-          <Image src={src} alt={team.managerName} width={40} height={40} unoptimized />
-        ) : (
-          <span className="font-condensed text-sm font-bold" style={{ color }}>
-            {team.managerName.slice(0, 1)}
-          </span>
-        )}
-      </div>
-      <div className="min-w-0">
-        <p className={`truncate font-semibold ${isWinner ? "text-text" : "text-text-muted"}`}>{team.managerName}</p>
-      </div>
+    <div className={`flex min-w-0 items-center gap-2 ${align === "right" ? "flex-row-reverse text-right" : ""}`}>
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} aria-hidden="true" />
+      {avatarEl}
+      {nameEl}
     </div>
   );
 }
@@ -51,27 +51,24 @@ export function MatchupCard({ teams }: { teams: MatchupTeam[] }) {
   const bWins = teamB.points > teamA.points;
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <TeamHeader team={teamA} isWinner={aWins} />
-          <p className={`font-condensed mt-2 text-3xl font-bold stat-num ${aWins ? "text-accent" : "text-text-muted"}`}>
+    <div className="py-5">
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+        <TeamHeader team={teamA} isWinner={aWins} align="left" />
+        <div className="flex items-baseline gap-2 px-2">
+          <span className={`font-condensed stat-num text-2xl font-bold ${aWins ? "text-text" : "text-text-dim"}`}>
             {fmtPoints(teamA.points)}
-          </p>
-        </div>
-        <div className="text-right">
-          <div className="flex flex-row-reverse">
-            <TeamHeader team={teamB} isWinner={bWins} />
-          </div>
-          <p className={`font-condensed mt-2 text-3xl font-bold stat-num ${bWins ? "text-accent" : "text-text-muted"}`}>
+          </span>
+          <span className="text-xs text-text-dim">–</span>
+          <span className={`font-condensed stat-num text-2xl font-bold ${bWins ? "text-text" : "text-text-dim"}`}>
             {fmtPoints(teamB.points)}
-          </p>
+          </span>
         </div>
+        <TeamHeader team={teamB} isWinner={bWins} align="right" />
       </div>
 
       <button
         onClick={() => setShowBench((v) => !v)}
-        className="font-condensed mt-4 w-full rounded border border-border py-2 text-xs font-semibold uppercase tracking-wide text-text-muted transition-colors hover:border-accent hover:text-accent"
+        className="mt-3 text-sm text-text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
       >
         {showBench ? "Hide lineups" : "Show lineups"}
       </button>
@@ -79,21 +76,21 @@ export function MatchupCard({ teams }: { teams: MatchupTeam[] }) {
       {showBench && (
         <div className="mt-4 grid grid-cols-2 gap-6">
           <div>
-            <p className="font-condensed mb-1 text-xs font-semibold uppercase tracking-wide text-text-dim">Starters</p>
+            <p className="mb-1 text-xs text-text-dim">Starters</p>
             {teamA.starters.map((p) => (
               <PlayerRow key={p.playerId} {...p} />
             ))}
-            <p className="font-condensed mb-1 mt-3 text-xs font-semibold uppercase tracking-wide text-text-dim">Bench</p>
+            <p className="mb-1 mt-3 text-xs text-text-dim">Bench</p>
             {teamA.bench.map((p) => (
               <PlayerRow key={p.playerId} {...p} />
             ))}
           </div>
           <div>
-            <p className="font-condensed mb-1 text-xs font-semibold uppercase tracking-wide text-text-dim">Starters</p>
+            <p className="mb-1 text-xs text-text-dim">Starters</p>
             {teamB.starters.map((p) => (
               <PlayerRow key={p.playerId} {...p} />
             ))}
-            <p className="font-condensed mb-1 mt-3 text-xs font-semibold uppercase tracking-wide text-text-dim">Bench</p>
+            <p className="mb-1 mt-3 text-xs text-text-dim">Bench</p>
             {teamB.bench.map((p) => (
               <PlayerRow key={p.playerId} {...p} />
             ))}

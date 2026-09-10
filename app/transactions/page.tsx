@@ -37,24 +37,24 @@ export default async function TransactionsPage({
   );
 
   return (
-    <div className="py-10">
-      <p className="font-condensed text-sm font-semibold uppercase tracking-widest text-accent">League Activity</p>
-      <h1 className="font-condensed mt-2 text-4xl font-bold uppercase tracking-wide">Transactions</h1>
+    <div className="py-14">
+      <p className="text-sm text-text-muted">League activity</p>
+      <h1 className="font-condensed mt-1 text-3xl font-bold tracking-tight text-text">Transactions</h1>
 
       <div className="mt-6">
         <TransactionFilters seasons={seasons} types={types} managers={managers} />
       </div>
 
-      <div className="mt-8 flex flex-col gap-3">
-        {feed.length === 0 && <p className="text-text-muted">No transactions match those filters.</p>}
+      <div className="mt-8 divide-y divide-border border-t border-border">
+        {feed.length === 0 && <p className="py-6 text-text-muted">No transactions match those filters.</p>}
         {feed.map((t) => (
-          <div key={t.transactionId} className="rounded-lg border border-border bg-surface p-4">
+          <div key={t.transactionId} className="py-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-condensed text-xs font-semibold uppercase tracking-wide text-accent">
+              <span className="text-xs text-text-muted">
                 {TYPE_LABELS[t.type] ?? t.type} · {t.season}
-                {t.week ? ` · Wk ${t.week}` : ""}
+                {t.week ? ` · wk ${t.week}` : ""}
               </span>
-              <span className="text-xs text-text-muted">{formatDate(t.created)}</span>
+              <span className="text-xs text-text-dim">{formatDate(t.created)}</span>
             </div>
 
             <div className="mt-3 grid gap-2 sm:grid-cols-2">

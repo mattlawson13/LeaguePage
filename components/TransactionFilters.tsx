@@ -22,10 +22,10 @@ export function TransactionFilters({
   }
 
   const selectClass =
-    "rounded border border-border bg-surface px-3 py-2 text-sm text-text focus:border-accent focus:outline-none";
+    "border-b border-border bg-transparent py-1.5 pr-1 text-sm text-text focus:border-accent focus:outline-none";
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-5">
       <select
         className={selectClass}
         defaultValue={searchParams.get("season") ?? ""}

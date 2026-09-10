@@ -2,14 +2,16 @@
   "_comment": "sleeper_username is the join key. The ingest step resolves it to user_id via /league/{id}/users and writes user_id back. favorite_player is resolved against the Sleeper player map by search_full_name; favorite_team is an NFL abbreviation. Either may be null. relationship is hand-written (not inferred) and drives the 'house divided' tag on rivalry cards.",
   "managers": [
     {
-      "sleeper_username": "Lahey Randy",
+      "sleeper_username": "laheyrandy",
       "display_name": "Lahey Randy",
       "real_name": "Matt Lawson",
       "role": "commissioner",
       "bio": "The commissioner. Runs the league, sets the rules, and answers for all of it.",
       "favorite_player": "Trevor Lawrence",
       "favorite_team": "JAX",
-      "rivals": ["Schmittbone"]
+      "rivals": [
+        "Schmittbone"
+      ]
     },
     {
       "sleeper_username": "Schmittbone",
@@ -19,51 +21,73 @@
       "bio": "A fantasy football connoisseur. Spends day and night reviewing tape on rookies.",
       "favorite_player": null,
       "favorite_team": "PHI",
-      "rivals": ["Lahey Randy"]
+      "rivals": [
+        "laheyrandy"
+      ]
     },
     {
-      "sleeper_username": "tylurlawson",
+      "sleeper_username": "tylerlawson",
       "display_name": "tylurlawson",
       "real_name": "Tyler Lawson",
       "role": "manager",
       "bio": "Wife of Andy. Here for the vibes.",
       "favorite_player": null,
       "favorite_team": null,
-      "relationship": { "type": "spouse", "with": "punt on 3rd down" },
-      "rivals": ["punt on 3rd down"]
+      "relationship": {
+        "type": "spouse",
+        "with": "CallMeAndy"
+      },
+      "rivals": [
+        "CallMeAndy"
+      ]
     },
     {
-      "sleeper_username": "punt on 3rd down",
+      "sleeper_username": "CallMeAndy",
       "display_name": "punt on 3rd down",
       "real_name": "Andy Wilpiselski",
       "role": "manager",
       "bio": "Husband of Tyler. Shithouse lord. A genuinely strong player.",
       "favorite_player": null,
       "favorite_team": null,
-      "relationship": { "type": "spouse", "with": "tylurlawson" },
-      "rivals": ["tylurlawson"]
+      "relationship": {
+        "type": "spouse",
+        "with": "tylerlawson"
+      },
+      "rivals": [
+        "tylerlawson"
+      ]
     },
     {
-      "sleeper_username": "andres the giants",
+      "sleeper_username": "frankie2chins",
       "display_name": "andres the giants",
       "real_name": "Frank Desiderio",
       "role": "manager",
       "bio": "Husband of Melissa Lawson. His own worst enemy.",
       "favorite_player": null,
       "favorite_team": null,
-      "relationship": { "type": "spouse", "with": "back dak azz up" },
-      "rivals": ["andres the giants"]
+      "relationship": {
+        "type": "spouse",
+        "with": "MelissaDesi"
+      },
+      "rivals": [
+        "frankie2chins"
+      ]
     },
     {
-      "sleeper_username": "back dak azz up",
+      "sleeper_username": "MelissaDesi",
       "display_name": "back dak azz up",
       "real_name": "Melissa Lawson",
       "role": "manager",
-      "bio": "Wife of Frank. A great fantasy player — the Rain Man of fantasy football.",
+      "bio": "Wife of Frank. A great fantasy player \u2014 the Rain Man of fantasy football.",
       "favorite_player": null,
       "favorite_team": "PHI",
-      "relationship": { "type": "spouse", "with": "andres the giants" },
-      "rivals": ["lotsofcox"]
+      "relationship": {
+        "type": "spouse",
+        "with": "frankie2chins"
+      },
+      "rivals": [
+        "lotsofcox"
+      ]
     },
     {
       "sleeper_username": "lotsofcox",
@@ -73,17 +97,21 @@
       "bio": "Nurse extraordinaire out of Philly.",
       "favorite_player": null,
       "favorite_team": "PHI",
-      "rivals": ["back dak azz up"]
+      "rivals": [
+        "MelissaDesi"
+      ]
     },
     {
-      "sleeper_username": "tush push and pray",
+      "sleeper_username": "brookek1248",
       "display_name": "tush push and pray",
       "real_name": "Brooke Kratzer",
       "role": "manager",
       "bio": "A rookie to the league. Another nurse extraordinaire.",
       "favorite_player": "Jalen Hurts",
       "favorite_team": "PHI",
-      "rivals": ["dith"]
+      "rivals": [
+        "dith"
+      ]
     },
     {
       "sleeper_username": "dith",
@@ -93,7 +121,9 @@
       "bio": "Rams fan through and through. Has never won it all, but this may be her year.",
       "favorite_player": "Aaron Donald",
       "favorite_team": "LAR",
-      "rivals": ["tush push and pray"]
+      "rivals": [
+        "brookek1248"
+      ]
     },
     {
       "sleeper_username": "superdad7",
@@ -103,7 +133,9 @@
       "bio": "Grandfather of the year.",
       "favorite_player": "T.J. Watt",
       "favorite_team": "PIT",
-      "rivals": ["chrisstine"]
+      "rivals": [
+        "chrisstine"
+      ]
     },
     {
       "sleeper_username": "chrisstine",
@@ -113,7 +145,9 @@
       "bio": "Grandmother of the year.",
       "favorite_player": "Saquon Barkley",
       "favorite_team": "PHI",
-      "rivals": ["superdad7"]
+      "rivals": [
+        "superdad7"
+      ]
     },
     {
       "sleeper_username": "jswiontak",

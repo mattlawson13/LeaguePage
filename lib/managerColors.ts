@@ -1,21 +1,23 @@
 // Stable per-manager accent color, used consistently across every chart and
 // card on the site. Derived from a hash of user_id rather than stored, so it
-// never drifts and needs no migration when a new manager shows up.
+// never drifts and needs no migration when a new manager shows up. Kept to a
+// single muted, mid-tone palette (rather than saturated "chart defaults") so
+// it reads the same deliberate way in both light and dark mode.
 const PALETTE = [
-  "#ff5a2e", // accent orange
-  "#3fb27f", // green
-  "#5b8def", // blue
-  "#c9a24b", // gold
-  "#e0525f", // red
-  "#9b6bd6", // purple
-  "#3fc4c4", // teal
-  "#e0a13f", // amber
-  "#7ed957", // lime
-  "#e06fc9", // pink
-  "#6b8cff", // periwinkle
-  "#d97b3f", // burnt orange
-  "#4fb8e0", // sky
-  "#b0d642", // yellow-green
+  "#b5502c", // terracotta
+  "#5c7a54", // sage
+  "#a8792c", // ochre
+  "#4d6a85", // slate blue
+  "#7a4f6b", // plum
+  "#3f7a75", // teal
+  "#9c4a35", // rust
+  "#6d7a3f", // moss
+  "#a15d6b", // dusty rose
+  "#3f5c7a", // denim
+  "#a08a2e", // mustard
+  "#7d5a3f", // clay
+  "#5a6975", // steel
+  "#824468", // berry
 ];
 
 function hash(str: string): number {

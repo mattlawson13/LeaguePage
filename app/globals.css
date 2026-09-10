@@ -1,33 +1,71 @@
 @import "tailwindcss";
 
+/* Light is the default; dark applies via system preference, and either can
+   be pinned explicitly with data-theme so the toggle always wins. */
 :root {
-  --color-base: #0d0d0f;
-  --color-surface: #16161a;
-  --color-surface-raised: #1c1c21;
-  --color-border: #2a2a30;
-  --color-text: #f4f4f2;
-  --color-text-muted: #9a9aa4;
-  --color-text-dim: #6b6b74;
-  --color-accent: #ff5a2e;
-  --color-accent-dim: #7a3018;
-  --color-gold: #c9a24b;
-  --color-gold-dim: #4d3f21;
-  --color-win: #3fb27f;
-  --color-loss: #e0525f;
+  color-scheme: light;
+
+  --color-base: #f6f4ef;
+  --color-surface: #fbfaf7;
+  --color-border: #e3ded2;
+  --color-text: #18160f;
+  --color-text-muted: #6f6a5c;
+  --color-text-dim: #a39c8a;
+  --color-accent: #af3f1f;
+  --color-accent-tint: #f2e3da;
+  --color-gold: #8a6a26;
+  --color-gold-tint: #f0e6c8;
+  --color-win: #2f6f4c;
+  --color-loss: #a53a37;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --color-base: #0e0d0b;
+    --color-surface: #171510;
+    --color-border: #2c2822;
+    --color-text: #f3f0e8;
+    --color-text-muted: #a49d8c;
+    --color-text-dim: #6b6558;
+    --color-accent: #e2724a;
+    --color-accent-tint: #33221a;
+    --color-gold: #cba869;
+    --color-gold-tint: #332c1a;
+    --color-win: #6bb98c;
+    --color-loss: #d47b78;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-base: #0e0d0b;
+  --color-surface: #171510;
+  --color-border: #2c2822;
+  --color-text: #f3f0e8;
+  --color-text-muted: #a49d8c;
+  --color-text-dim: #6b6558;
+  --color-accent: #e2724a;
+  --color-accent-tint: #33221a;
+  --color-gold: #cba869;
+  --color-gold-tint: #332c1a;
+  --color-win: #6bb98c;
+  --color-loss: #d47b78;
 }
 
 @theme inline {
   --color-base: var(--color-base);
   --color-surface: var(--color-surface);
-  --color-surface-raised: var(--color-surface-raised);
   --color-border: var(--color-border);
   --color-text: var(--color-text);
   --color-text-muted: var(--color-text-muted);
   --color-text-dim: var(--color-text-dim);
   --color-accent: var(--color-accent);
-  --color-accent-dim: var(--color-accent-dim);
+  --color-accent-tint: var(--color-accent-tint);
   --color-gold: var(--color-gold);
-  --color-gold-dim: var(--color-gold-dim);
+  --color-gold-tint: var(--color-gold-tint);
   --color-win: var(--color-win);
   --color-loss: var(--color-loss);
   --font-condensed: var(--font-condensed);
@@ -35,8 +73,8 @@
   --font-mono: var(--font-mono);
 }
 
-html {
-  color-scheme: dark;
+* {
+  border-color: var(--color-border);
 }
 
 body {
@@ -62,5 +100,5 @@ body {
 
 ::selection {
   background: var(--color-accent);
-  color: #0d0d0f;
+  color: var(--color-surface);
 }

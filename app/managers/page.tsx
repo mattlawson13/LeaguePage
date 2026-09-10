@@ -10,40 +10,28 @@ export default function ManagersIndexPage() {
   const managers = resolveManagers().sort((a, b) => a.display_name.localeCompare(b.display_name));
 
   return (
-    <div className="py-10">
-      <p className="font-condensed text-sm font-semibold uppercase tracking-widest text-accent">The League</p>
-      <h1 className="font-condensed mt-2 text-4xl font-bold uppercase tracking-wide">Managers</h1>
+    <div className="py-14">
+      <p className="text-sm text-text-muted">The league</p>
+      <h1 className="font-condensed mt-1 text-3xl font-bold tracking-tight text-text">Managers</h1>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
         {managers.map((m) => {
           const src = avatarUrl(m.avatar);
           const color = managerColor(m.userId);
           return (
-            <Link
-              key={m.userId}
-              href={managerHref(m.sleeper_username)}
-              className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4 transition-colors hover:border-text-dim"
-            >
-              <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2"
-                style={{ borderColor: color }}
-              >
+            <Link key={m.userId} href={managerHref(m.sleeper_username)} className="group flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface">
                 {src ? (
-                  <CdnImage src={src} alt={m.display_name} width={56} height={56} unoptimized />
+                  <CdnImage src={src} alt="" width={44} height={44} unoptimized />
                 ) : (
-                  <span className="font-condensed text-xl font-bold" style={{ color }}>
-                    {m.display_name.slice(0, 1)}
-                  </span>
+                  <span className="text-lg text-text-dim">{m.display_name.slice(0, 1)}</span>
                 )}
               </div>
               <div className="min-w-0">
-                <p className="flex items-center gap-2 truncate font-semibold text-text">
+                <p className="flex items-center gap-2 truncate text-text group-hover:text-accent">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} aria-hidden="true" />
                   {m.display_name}
-                  {m.role === "commissioner" && (
-                    <span className="font-condensed shrink-0 rounded border border-gold-dim px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gold">
-                      Commish
-                    </span>
-                  )}
+                  {m.role === "commissioner" && <span className="shrink-0 text-xs text-gold">commish</span>}
                 </p>
                 <p className="truncate text-sm text-text-muted">{m.real_name}</p>
               </div>
