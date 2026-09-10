@@ -11,37 +11,37 @@ function formatDate(dateStr: string | null): string {
 }
 
 export function NewsFeed({ articles }: { articles: NewsArticle[] }) {
-  const [team, setTeam] = useState("");
+  const [manager, setManager] = useState("");
 
-  const teams = useMemo(() => {
+  const managers = useMemo(() => {
     const set = new Set<string>();
     for (const a of articles) {
-      for (const p of a.players) if (p.team) set.add(p.team);
+      for (const p of a.players) if (p.managerName) set.add(p.managerName);
     }
     return Array.from(set).sort();
   }, [articles]);
 
   const filtered = useMemo(() => {
-    if (!team) return articles;
-    return articles.filter((a) => a.players.some((p) => p.team === team));
-  }, [articles, team]);
+    if (!manager) return articles;
+    return articles.filter((a) => a.players.some((p) => p.managerName === manager));
+  }, [articles, manager]);
 
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
         <label className="text-sm text-text-muted" htmlFor="news-team-filter">
-          Team
+          Fantasy team
         </label>
         <select
           id="news-team-filter"
-          value={team}
-          onChange={(e) => setTeam(e.target.value)}
+          value={manager}
+          onChange={(e) => setManager(e.target.value)}
           className="border-b border-border bg-transparent py-1.5 pr-1 text-sm text-text focus:border-accent focus:outline-none"
         >
-          <option value="">All teams</option>
-          {teams.map((t) => (
-            <option key={t} value={t}>
-              {t}
+          <option value="">All fantasy teams</option>
+          {managers.map((m) => (
+            <option key={m} value={m}>
+              {m}
             </option>
           ))}
         </select>
@@ -51,7 +51,7 @@ export function NewsFeed({ articles }: { articles: NewsArticle[] }) {
       </div>
 
       <div className="mt-6 divide-y divide-border border-t border-border">
-        {filtered.length === 0 && <p className="py-6 text-text-muted">No articles for that team right now.</p>}
+        {filtered.length === 0 && <p className="py-6 text-text-muted">No articles for that fantasy team right now.</p>}
         {filtered.map((a) => (
           <a key={a.link} href={a.link} target="_blank" rel="noopener noreferrer" className="group block py-4">
             <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">

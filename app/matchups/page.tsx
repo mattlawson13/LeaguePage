@@ -4,6 +4,7 @@ import { getMatchupArticle, getMatchupPreview } from "@/lib/beatWriter";
 import { getPlayerHistory } from "@/lib/players";
 import { WeekSelector } from "@/components/WeekSelector";
 import { MatchupCard } from "@/components/MatchupCard";
+import { LiveScoreboard } from "@/components/LiveScoreboard";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,11 @@ export default async function MatchupsPage({
     ? null
     : new Map(getPlayerHistory().map((p) => [p.playerId, p.careerPoints]));
 
+  // Live NFL scores and live per-player fantasy points only make sense for
+  // whatever week the actual NFL season is on right now, not a past week
+  // being browsed or a future one that hasn't happened yet.
+  const isLiveWeek = season === currentLeague?.season && week === getCurrentWeek();
+
   return (
     <div className="py-14">
       <p className="text-sm text-text-muted">{season} season</p>
@@ -40,6 +46,12 @@ export default async function MatchupsPage({
         <WeekSelector seasons={seasons} season={season} week={week} />
       </div>
 
+      {isLiveWeek && (
+        <div className="mt-8">
+          <LiveScoreboard leagueId={league.league_id} />
+        </div>
+      )}
+
       <div className="mt-8 divide-y divide-border border-t border-border">
         {matchups.length === 0 && <p className="py-6 text-text-muted">No matchups recorded for this week yet.</p>}
         {matchups.map((m) => {
@@ -47,7 +59,13 @@ export default async function MatchupsPage({
             ? getMatchupArticle(m, league.league_id, season, week)
             : getMatchupPreview(m, league.league_id, season, week, careerPointsById!);
           return (
-            <MatchupCard key={m.matchupId} teams={m.teams} article={article} articleKind={weekFinal ? "recap" : "preview"} />
+            <MatchupCard
+              key={m.matchupId}
+              teams={m.teams}
+              article={article}
+              articleKind={weekFinal ? "recap" : "preview"}
+              live={isLiveWeek ? { leagueId: league.league_id, week } : null}
+            />
           );
         })}
       </div>

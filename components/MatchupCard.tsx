@@ -6,6 +6,7 @@ import type { MatchupArticle } from "@/lib/beatWriter";
 import { avatarUrl, fmtPoints } from "@/lib/format";
 import { managerColor } from "@/lib/managerColors";
 import { CdnImage } from "./CdnImage";
+import { LiveMatchupPoints } from "./LiveMatchupPoints";
 
 function TeamHeader({ team, isWinner, align }: { team: MatchupTeam; isWinner: boolean; align: "left" | "right" }) {
   const src = avatarUrl(team.avatar);
@@ -48,13 +49,16 @@ export function MatchupCard({
   teams,
   article,
   articleKind = "recap",
+  live,
 }: {
   teams: MatchupTeam[];
   article?: MatchupArticle | null;
   articleKind?: "recap" | "preview";
+  live?: { leagueId: string; week: number } | null;
 }) {
   const [showBench, setShowBench] = useState(false);
   const [showArticle, setShowArticle] = useState(false);
+  const [showLive, setShowLive] = useState(false);
   const [teamA, teamB] = teams;
   if (!teamA || !teamB) return null;
   const aWins = teamA.points > teamB.points;
@@ -97,7 +101,21 @@ export function MatchupCard({
                 : "Read the recap"}
           </button>
         )}
+        {live && (
+          <button
+            onClick={() => setShowLive((v) => !v)}
+            className="text-sm text-text-muted underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+          >
+            {showLive ? "Hide live scoring" : "Live scoring"}
+          </button>
+        )}
       </div>
+
+      {showLive && live && (
+        <div className="mt-4">
+          <LiveMatchupPoints leagueId={live.leagueId} week={live.week} rosterA={teamA.rosterId} rosterB={teamB.rosterId} />
+        </div>
+      )}
 
       {showArticle && article && (
         <div className="mt-4 max-w-2xl border-l-2 border-border pl-4">
