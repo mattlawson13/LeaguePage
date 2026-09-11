@@ -16,14 +16,14 @@ function normalizeUsername(name: string): string {
   return name.trim().toLowerCase();
 }
 
-function isNamedPair(a: ResolvedManager, b: ResolvedManager): boolean {
+export function isNamedPair(a: ResolvedManager, b: ResolvedManager): boolean {
   return (
     a.rivals.some((r) => normalizeUsername(r) === normalizeUsername(b.sleeper_username)) ||
     b.rivals.some((r) => normalizeUsername(r) === normalizeUsername(a.sleeper_username))
   );
 }
 
-function isHouseDivided(a: ResolvedManager, b: ResolvedManager): boolean {
+export function isHouseDivided(a: ResolvedManager, b: ResolvedManager): boolean {
   return Boolean(
     (a.relationship && normalizeUsername(a.relationship.with) === normalizeUsername(b.sleeper_username)) ||
       (b.relationship && normalizeUsername(b.relationship.with) === normalizeUsername(a.sleeper_username)),

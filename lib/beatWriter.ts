@@ -2,6 +2,9 @@ import type { Database } from "better-sqlite3";
 import { getDb } from "./db/client";
 import { getHeadToHeadForPair, getSeasonStandings, getManagerCareerStats, computeOptimalLineup } from "./stats";
 import { fmtPoints, fmtRecord } from "./format";
+import { resolveManagers } from "./managers";
+import { isNamedPair, isHouseDivided, getTopAutoRivalries } from "./rivalries";
+import { getWeekOdds } from "./odds";
 import type { WeekMatchup, MatchupTeam, MatchupPlayer } from "./matchups";
 
 /**
@@ -216,6 +219,101 @@ function findQuestionableStart(
 }
 
 /**
+ * Rivalry framing for a preview, checked in order of how deliberate the
+ * rivalry is: a hand-tagged relationship (married/dating couples playing
+ * each other) beats a hand-tagged named rivalry, which beats an
+ * auto-detected one (a close, well-played series nobody's bothered to name).
+ * Most matchups are none of these, and stay silent rather than force
+ * "rivalry" language onto an ordinary pairing.
+ */
+function rivalryParagraph(
+  teamA: MatchupTeam,
+  teamB: MatchupTeam,
+  seed: string,
+  db: Database,
+): string | null {
+  if (!teamA.userId || !teamB.userId) return null;
+  const managers = resolveManagers(db);
+  const mA = managers.find((m) => m.userId === teamA.userId);
+  const mB = managers.find((m) => m.userId === teamB.userId);
+  if (!mA || !mB) return null;
+
+  if (isHouseDivided(mA, mB)) {
+    return template(`rivalry-house-${seed}`, [
+      "This one's a house divided: {a} and {b} go home together no matter who wins tonight.",
+      "Nothing like a little tension at home: {a} and {b} share more than a roof, they share this rivalry.",
+    ], { a: teamA.managerName, b: teamB.managerName });
+  }
+  if (isNamedPair(mA, mB)) {
+    return template(`rivalry-named-${seed}`, [
+      "Circle this one: {a} vs. {b} is one of this league's marquee rivalries.",
+      "This is personal. {a} and {b} have had each other's numbers saved for a while.",
+    ], { a: teamA.managerName, b: teamB.managerName });
+  }
+  const topAuto = getTopAutoRivalries(3, db);
+  const isQuietRivalry = topAuto.some(
+    (p) =>
+      (p.a.userId === teamA.userId && p.b.userId === teamB.userId) ||
+      (p.a.userId === teamB.userId && p.b.userId === teamA.userId),
+  );
+  if (isQuietRivalry) {
+    return template(`rivalry-auto-${seed}`, [
+      "Nobody's officially named it, but {a} vs. {b} has quietly become one of the tightest series in this league.",
+      "No nickname yet, but {a} and {b} have made a real case for one.",
+    ], { a: teamA.managerName, b: teamB.managerName });
+  }
+  return null;
+}
+
+/**
+ * A little more analysis than the framing paragraph gives: the actual
+ * modeled spread/win probability this site already computes for the
+ * Betting Odds page, plus a notable win/loss streak, so the preview says
+ * something a plain records comparison doesn't.
+ */
+function analysisParagraph(
+  teamA: MatchupTeam,
+  teamB: MatchupTeam,
+  week: number,
+  seed: string,
+  db: Database,
+): string | null {
+  const odds = getWeekOdds(week, db);
+  const line = odds.find(
+    (o) =>
+      (o.rosterA.rosterId === teamA.rosterId && o.rosterB.rosterId === teamB.rosterId) ||
+      (o.rosterA.rosterId === teamB.rosterId && o.rosterB.rosterId === teamA.rosterId),
+  );
+  if (!line) return null;
+
+  const aIsRosterA = line.rosterA.rosterId === teamA.rosterId;
+  const spreadForA = aIsRosterA ? line.spread : -line.spread;
+  const winProbA = aIsRosterA ? line.winProbA : 1 - line.winProbA;
+  const favorite = spreadForA <= 0 ? teamA : teamB;
+  const dog = favorite === teamA ? teamB : teamA;
+  const favoriteWinPct = Math.round((favorite === teamA ? winProbA : 1 - winProbA) * 100);
+  const spreadPts = fmtPoints(Math.abs(spreadForA));
+
+  if (Math.abs(spreadForA) < 1) {
+    return template(`analysis-pickem-${seed}`, [
+      "By the numbers, this one's a true pick'em: {a} and {b} project within a point of each other, {total} combined.",
+      "The model can't separate these two. Call it a coin flip, with {total} points on the board between them.",
+    ], { a: teamA.managerName, b: teamB.managerName, total: fmtPoints(line.total) });
+  }
+
+  return template(`analysis-line-${seed}`, [
+    "By the numbers: {favorite} projects as a {spread}-point favorite over {dog}, a {pct}% implied chance to win, with {total} total points on the board.",
+    "The model likes {favorite} here, favored by {spread} over {dog} ({pct}% implied), with a projected total of {total}.",
+  ], {
+    favorite: favorite.managerName,
+    dog: dog.managerName,
+    spread: spreadPts,
+    pct: String(favoriteWinPct),
+    total: fmtPoints(line.total),
+  });
+}
+
+/**
  * Forward-looking preview for a matchup whose week hasn't finished yet
  * (per lib/league.ts's isWeekFinal), so it never reports on scores that
  * haven't happened. Same deterministic template approach as
@@ -283,6 +381,26 @@ export function getMatchupPreview(
     );
   }
 
+  // Streak: worth a mention on its own once it's long enough to mean
+  // something (a 1-game "streak" is just last week's result).
+  const streakTeam = [sA, sB].find((s) => s && /^[WL][3-9]\d*$/.test(s.streak));
+  if (streakTeam) {
+    const team = streakTeam === sA ? teamA : teamB;
+    const kind = streakTeam.streak[0] === "W" ? "win" : "loss";
+    const verb = kind === "win" ? "won" : "lost";
+    const count = streakTeam.streak.slice(1);
+    paragraphs.push(
+      template(`streak-${seed}`, [
+        "{name} rides a {count}-game {kind} streak into this one.",
+        "Worth noting: {name} has {verb} {count} straight coming in.",
+      ], { name: team.managerName, count, kind, verb }),
+    );
+  }
+
+  // Rivalry framing, when this pairing is a real one.
+  const rivalry = rivalryParagraph(teamA, teamB, seed, db);
+  if (rivalry) paragraphs.push(rivalry);
+
   // Head-to-head history
   if (teamA.userId && teamB.userId) {
     const h2h = getHeadToHeadForPair(teamA.userId, teamB.userId, db);
@@ -309,6 +427,11 @@ export function getMatchupPreview(
       );
     }
   }
+
+  // A little modeled analysis: the same spread/win-probability the Betting
+  // Odds page already computes for this matchup.
+  const analysis = analysisParagraph(teamA, teamB, week, seed, db);
+  if (analysis) paragraphs.push(analysis);
 
   // One to watch: the highest career-scoring starter in either lineup.
   const allStarters = [...teamA.starters, ...teamB.starters].filter((p) => p.playerId !== "0");
