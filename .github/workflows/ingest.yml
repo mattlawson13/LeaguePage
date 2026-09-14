@@ -4,6 +4,17 @@ name: Auto-ingest Sleeper data
 # hand. Sleeper is read-only and unauthenticated, so this needs no secrets.
 # Vercel's own GitHub integration redeploys on every push to this branch,
 # so a successful commit here is what actually gets fresher scores live.
+#
+# GitHub's own `schedule` trigger does not reliably fire every 15 minutes
+# for this repo in practice (observed gaps of 1.5-5 hours over several days,
+# despite the cron below) — a known, if under-documented, throttle GitHub
+# applies to scheduled Actions on lower-traffic repos. Working around it:
+# each time the job DOES start (whenever that is), it self-loops internally,
+# re-ingesting every 15 minutes for up to ~5.5 hours before exiting. Because
+# `concurrency` below lets only one run go at a time, the next schedule tick
+# (or the already-queued one) picks up immediately when a loop ends, so real
+# coverage stays close to continuous even though the trigger itself is
+# unreliable.
 on:
   schedule:
     - cron: "*/15 * * * *"
@@ -19,6 +30,7 @@ concurrency:
 jobs:
   ingest:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,17 +44,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ingest
-        run: npm run ingest
-
-      - name: Commit and push if the database changed
+      - name: Poll every 15 minutes for up to ~5.5 hours
         run: |
-          if git diff --quiet -- .data/league.db; then
-            echo "No changes to .data/league.db, nothing to commit."
-            exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .data/league.db
-          git commit -m "Auto-ingest: refresh league data [skip ci]"
-          git push
+
+          end=$((SECONDS + 5*3600 + 30*60))
+          while [ "$SECONDS" -lt "$end" ]; do
+            echo "=== ingest run at $(date -u -Iseconds) ==="
+
+            # Stay in sync with the remote before each iteration, since this
+            # single job stays checked out for hours and something else
+            # (another push, or last iteration's own commit) may have moved
+            # the branch forward.
+            git fetch origin "$GITHUB_REF_NAME"
+            git reset --hard "origin/$GITHUB_REF_NAME"
+
+            npm run ingest
+
+            if git diff --quiet -- .data/league.db; then
+              echo "no changes to .data/league.db"
+            else
+              git add .data/league.db
+              git commit -m "Auto-ingest: refresh league data [skip ci]"
+              git push origin "HEAD:$GITHUB_REF_NAME"
+            fi
+
+            remaining=$((end - SECONDS))
+            if [ "$remaining" -le 0 ]; then
+              break
+            fi
+            sleep "$((remaining < 900 ? remaining : 900))"
+          done

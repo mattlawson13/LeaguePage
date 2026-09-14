@@ -446,15 +446,28 @@ async function ingestNews(db: ReturnType<typeof getDb>) {
         const matches = namedPlayers.filter((p) => text.includes(p.needle));
         if (matches.length === 0) continue;
 
+        // Some feeds (CBS Sports in particular) pad link/title/date with
+        // whitespace and newlines from their XML formatting. Untrimmed, that
+        // breaks `ORDER BY pub_date DESC` on the News page directly — worse,
+        // storing pub_date in each feed's own raw format (RFC-822 strings
+        // start with a day-of-week name, which doesn't sort chronologically
+        // as text at all) makes that ORDER BY meaningless across feeds.
+        // Normalizing to ISO 8601 here is what makes "newest first" actually
+        // true.
+        const link = item.link.trim();
+        const rawDate = item.pubDate ?? item.isoDate ?? null;
+        const parsedDate = rawDate ? new Date(rawDate) : null;
+        const pubDate = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toISOString() : null;
+
         insertArticle.run({
-          link: item.link,
+          link,
           source: feed.source,
-          title: item.title ?? "(untitled)",
-          summary: (item.contentSnippet ?? "").slice(0, 500),
-          pub_date: item.pubDate ?? item.isoDate ?? null,
+          title: (item.title ?? "(untitled)").trim(),
+          summary: (item.contentSnippet ?? "").trim().slice(0, 500),
+          pub_date: pubDate,
           fetched_at: now(),
         });
-        for (const m of matches) insertMatch.run(item.link, m.playerId);
+        for (const m of matches) insertMatch.run(link, m.playerId);
         stored++;
       }
       await sleep(CALL_DELAY_MS);
