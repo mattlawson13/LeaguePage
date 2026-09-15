@@ -45,7 +45,7 @@ function trashTalkArticle(
   db: Database,
 ): Article | null {
   const matchups = getWeekMatchups(leagueId, week, db);
-  let blowout: { winner: string; loser: string; margin: number } | null = null;
+  let blowout: { winner: string; loser: string; margin: number; winnerPts: number; loserPts: number } | null = null;
   for (const m of matchups) {
     const [a, b] = m.teams;
     if (!a || !b) continue;
@@ -53,7 +53,7 @@ function trashTalkArticle(
     const winner = a.points >= b.points ? a : b;
     const loser = a.points >= b.points ? b : a;
     if (!blowout || margin > blowout.margin) {
-      blowout = { winner: winner.managerName, loser: loser.managerName, margin };
+      blowout = { winner: winner.managerName, loser: loser.managerName, margin, winnerPts: winner.points, loserPts: loser.points };
     }
   }
   if (!blowout || blowout.margin < 15) return null;
@@ -62,14 +62,31 @@ function trashTalkArticle(
   const title = template(`trash-title-${seed}`, [
     "{loser} owes {winner} an apology",
     "Somebody check on {loser}",
+    "{loser} did not see that coming",
+    "Rough week to be {loser}",
   ], { winner: blowout.winner, loser: blowout.loser });
+
+  const vars = {
+    winner: blowout.winner,
+    loser: blowout.loser,
+    margin: fmtPoints(blowout.margin),
+    winnerPts: fmtPoints(blowout.winnerPts),
+    loserPts: fmtPoints(blowout.loserPts),
+  };
 
   const paragraphs = [
     template(`trash-body-${seed}`, [
       "{winner} put {margin} points between themselves and {loser} this week. That's not a loss, that's a message.",
       "{loser} lost by {margin} to {winner}. The group chat should not let this go.",
       "{winner} could've let off the gas against {loser} and still won by two touchdowns. They did not let off the gas.",
-    ], { winner: blowout.winner, loser: blowout.loser, margin: fmtPoints(blowout.margin) }),
+      "{winnerPts} to {loserPts}. {loser} can run it back next year and it probably still ends the same way.",
+      "Nobody made {winner} run up the score on {loser}. They did it anyway.",
+    ], vars),
+    template(`trash-body2-${seed}`, [
+      "{loser} should screenshot the box score now, before someone talks them out of it being that bad. It was that bad.",
+      "Somewhere, {loser} is telling themselves this was a bye week in disguise. It wasn't.",
+      "{winner} isn't going to let this one go quietly, and honestly, why should they.",
+    ], vars),
   ];
 
   return { id: `trash-${season}-${week}`, category: "trash-talk", title, paragraphs, season, week };
@@ -89,6 +106,7 @@ function powerRankingsArticle(season: string, week: number, db: Database): Artic
     template(`power-lede-${seed}`, [
       "{name} sits atop this week's power rankings, and the tag says it all: {tag}.",
       "The power rankings have {name} at number one this week ({tag}).",
+      "Nobody's catching {name} at the top of the power rankings right now: {tag}.",
     ], { name: leader.displayName, tag: leader.tag.toLowerCase() }),
   ];
 
@@ -97,6 +115,7 @@ function powerRankingsArticle(season: string, week: number, db: Database): Artic
       template(`power-riser-${seed}`, [
         "Biggest mover: {name} climbed {spots} spots this week.",
         "{name} is trending up, {spots} spots better than last week.",
+        "{name} is the riser of the week, up {spots} spots.",
       ], { name: riser.displayName, spots: String(riser.movement) }),
     );
   }
@@ -105,6 +124,7 @@ function powerRankingsArticle(season: string, week: number, db: Database): Artic
       template(`power-faller-${seed}`, [
         "Free fall: {name} dropped {spots} spots this week.",
         "Rough week for the rankings: {name} fell {spots} spots.",
+        "{name} is the faller of the week, down {spots} spots.",
       ], { name: faller.displayName, spots: String(Math.abs(faller.movement)) }),
     );
   }
