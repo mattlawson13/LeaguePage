@@ -1,6 +1,6 @@
 import type { Database } from "better-sqlite3";
 import { getDb } from "./db/client";
-import { getCurrentLeague, getCurrentWeek, isWeekFinal } from "./league";
+import { getCurrentLeague, getNflState, isWeekFinal } from "./league";
 import { getWeekMatchups } from "./matchups";
 import { getMatchupArticle } from "./beatWriter";
 import { computePowerRankings } from "./powerRankings";
@@ -174,10 +174,14 @@ export function getArticles(db: Database = getDb()): Article[] {
   if (!league) return [];
 
   const season = league.season;
-  const currentWeek = getCurrentWeek(db);
+  // isWeekFinal() itself is keyed off nfl_state.week (not display_week, which
+  // lags behind it during Sleeper's own weekly rollover) so the loop bound
+  // here has to match that same raw counter, or a week isWeekFinal already
+  // considers done can sit here un-covered until display_week catches up.
+  const statWeek = getNflState(db)?.week ?? 1;
   const articles: Article[] = [];
 
-  for (let week = 1; week < currentWeek; week++) {
+  for (let week = 1; week < statWeek; week++) {
     if (!isWeekFinal(season, week, db)) continue;
     const matchups = getWeekMatchups(league.league_id, week, db);
     if (matchups.length === 0) continue;
@@ -200,7 +204,7 @@ export function getArticles(db: Database = getDb()): Article[] {
     if (trash) articles.push(trash);
   }
 
-  const latestPlayedWeek = currentWeek - 1;
+  const latestPlayedWeek = statWeek - 1;
   if (latestPlayedWeek >= 1) {
     const power = powerRankingsArticle(season, latestPlayedWeek, db);
     if (power) articles.push(power);
